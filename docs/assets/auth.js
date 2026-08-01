@@ -158,7 +158,7 @@
       });
       if (error) throw error;
       if (data.session) location.replace(appUrl("app.html"));
-      else { setMessage(t("emailConfirm"), "success"); event.currentTarget.reset(); }
+      else { setMessage(t("emailConfirm"), "success"); forms.signup.reset(); }
     } catch (error) { setMessage(friendlyError(error), "error"); }
     finally { button.disabled = false; button.textContent = t("create"); }
   });
