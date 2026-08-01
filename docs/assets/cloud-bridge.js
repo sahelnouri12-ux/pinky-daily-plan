@@ -1,6 +1,9 @@
 (() => {
   "use strict";
 
+  const SYNC_PATCH_VERSION = "1.5.2";
+  window.PINKY_SYNC_PATCH_VERSION = SYNC_PATCH_VERSION;
+
   const STORAGE_KEY = "pinky-day-planner-v1";
   const META_PREFIX = "pinky-day-cloud-meta:";
   const CONFLICT_BACKUP_KEY = "pinky-day-cloud-conflict-backup";
@@ -323,9 +326,10 @@
 
   function startRemotePolling() {
     clearInterval(remotePollTimer);
+    checkForRemoteUpdates();
     remotePollTimer = setInterval(() => {
       if (!document.hidden) checkForRemoteUpdates();
-    }, 15000);
+    }, 5000);
   }
 
   async function loadProfile() {
