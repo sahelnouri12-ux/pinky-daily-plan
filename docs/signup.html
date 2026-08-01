@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e94d8a">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="./favicon.ico?v=6" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=6">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=6">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=6">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./assets/css/auth.css?v=1.6.0">
+<script src="./config.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js" defer></script>
+
+<title>ساخت حساب | Pinky Daily Plan</title>
+<meta name="robots" content="noindex">
+</head>
+<body class="auth-site auth-page" data-auth-page="signup">
+<a class="skip-link" href="#main-content" data-i18n="skip">رفتن به محتوای اصلی</a>
+<header class="site-header">
+  <a class="brand-link" href="./index.html" aria-label="Pinky Daily Plan">
+    <img src="./icon-192.png" width="44" height="44" alt="">
+    <span>Pinky Daily Plan</span>
+  </a>
+  <nav class="header-actions" aria-label="تنظیمات صفحه" data-i18n-aria="pageSettings">
+    <button class="icon-button" id="themeToggle" type="button" aria-pressed="false" data-i18n-aria="themeToggle">
+      <span aria-hidden="true">◐</span>
+    </button>
+    <button class="language-button" id="languageToggle" type="button" aria-label="English">EN</button>
+  </nav>
+</header>
+
+<main id="main-content" class="auth-main" tabindex="-1">
+  <section class="auth-layout">
+    <aside class="auth-aside" aria-labelledby="aside-title">
+      <img class="auth-logo" src="./icon-192.png" width="84" height="84" alt="">
+      <p class="eyebrow">Pinky Daily Plan</p>
+      <h2 id="aside-title" data-i18n="authAsideTitle">برنامه‌ریزی آرام، در حساب شخصی تو</h2>
+      <p data-i18n="authAsideText">کارها، روتین‌ها و یادآوری‌هایت را در دستگاه‌های مختلف همراه داشته باش.</p>
+      <ul class="aside-points">
+        <li data-i18n="asidePointOne">ذخیره اطلاعات در حساب شخصی</li>
+        <li data-i18n="asidePointTwo">هماهنگی با نسخه موبایل و لپ‌تاپ</li>
+        <li data-i18n="asidePointThree">فعال‌سازی اختیاری اعلان‌ها</li>
+      </ul>
+    </aside>
+    <section class="auth-card" aria-labelledby="auth-title">
+      <div class="auth-card-heading">
+        <h1 id="auth-title" data-i18n="signupTitle">ساخت حساب</h1>
+        <p data-i18n="signupSubtitle"></p>
+      </div>
+      <div class="page-status" id="pageStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+      <form class="auth-form" id="signupForm" novalidate>
+  <div class="field">
+    <label for="signupName" data-i18n="displayName">نام نمایشی</label>
+    <input id="signupName" name="displayName" type="text" autocomplete="name" minlength="1" maxlength="80" required aria-describedby="signupNameError">
+    <p class="field-error" id="signupNameError"></p>
+  </div>
+  <div class="field">
+    <label for="signupEmail" data-i18n="email">ایمیل</label>
+    <input id="signupEmail" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required aria-describedby="signupEmailError">
+    <p class="field-error" id="signupEmailError"></p>
+  </div>
+  <div class="field">
+    <label for="signupPassword" data-i18n="newPassword">رمز عبور</label>
+    <div class="password-wrap">
+      <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="passwordRules signupPasswordError">
+      <button class="password-toggle" type="button" data-password-toggle="signupPassword" aria-pressed="false" data-i18n-aria="showPassword"><span aria-hidden="true">◉</span></button>
+    </div>
+    <ul class="password-rules" id="passwordRules">
+      <li data-password-rule="length" data-i18n="passwordMin">حداقل ۸ نویسه</li>
+      <li data-password-rule="match" data-i18n="passwordMatch">یکسان با تکرار رمز</li>
+    </ul>
+    <p class="field-error" id="signupPasswordError"></p>
+  </div>
+  <div class="field">
+    <label for="signupConfirm" data-i18n="confirmPassword">تکرار رمز عبور</label>
+    <div class="password-wrap">
+      <input id="signupConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="signupConfirmError">
+      <button class="password-toggle" type="button" data-password-toggle="signupConfirm" aria-pressed="false" data-i18n-aria="showPassword"><span aria-hidden="true">◉</span></button>
+    </div>
+    <p class="field-error" id="signupConfirmError"></p>
+  </div>
+  <button class="button primary submit-button" type="submit"><span data-submit-label data-i18n="createAccount">ساخت حساب</span><span class="spinner" aria-hidden="true"></span></button>
+</form>
+<p class="auth-switch"><span data-i18n="haveAccount">قبلاً حساب ساخته‌ای؟</span> <a href="./login.html" data-i18n="signIn">ورود</a></p>
+
+      <div class="auth-fallback" id="authFallback" hidden>
+        <p data-i18n="loadFailed">بارگذاری سرویس ورود کامل نشد.</p>
+        <button class="button secondary" type="button" id="retryButton" data-i18n="tryAgain">تلاش دوباره</button>
+      </div>
+    </section>
+  </section>
+</main>
+<footer class="site-footer">
+  <a href="./privacy.html" data-i18n="privacy">حریم خصوصی</a>
+  <span aria-hidden="true">•</span>
+  <span>© Pinky Daily Plan</span>
+</footer>
+
+<noscript><div class="noscript-message">برای ورود یا ساخت حساب، JavaScript را فعال کنید.</div></noscript>
+<script type="module" src="./assets/js/auth-page.js?v=1.6.0"></script>
+<script type="module" src="./assets/js/pwa-register.js?v=1.6.0"></script>
+
+</body>
+</html>
