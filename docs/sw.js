@@ -1,4 +1,4 @@
-const CACHE = "pinky-daily-plan-v1.5.0";
+const CACHE = "pinky-daily-plan-v1.5.1-multidevice-sync";
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
