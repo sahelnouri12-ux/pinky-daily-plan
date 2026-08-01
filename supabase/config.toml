@@ -1,0 +1,18 @@
+project_id = "pinky-daily-plan"
+
+[functions.health]
+verify_jwt = false
+
+[functions.send-due-reminders]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = true
+[functions.save-subscription]
+verify_jwt = true
+[functions.sync-reminders]
+verify_jwt = true
+[functions.test-push]
+verify_jwt = true
+[functions.admin-overview]
+verify_jwt = true

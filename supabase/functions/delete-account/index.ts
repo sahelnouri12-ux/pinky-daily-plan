@@ -1,0 +1,2 @@
+import { json, preflight, requireUser } from "../_shared/server.ts";
+export default { async fetch(request: Request) { const p=preflight(request); if(p)return p; if(request.method!=="DELETE")return json({error:"Method not allowed"},405,{Allow:"DELETE"}); const auth=await requireUser(request); if("error" in auth)return auth.error; const {error}=await auth.supabase.auth.admin.deleteUser(auth.user.id); if(error)return json({error:error.message},500); return json({ok:true}); } };

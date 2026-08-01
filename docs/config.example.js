@@ -1,0 +1,15 @@
+(() => {
+  "use strict";
+  const scriptUrl = document.currentScript?.src || location.href;
+  const baseUrl = new URL("./", scriptUrl).href;
+  window.PINKY_APP_BASE = baseUrl;
+  window.PinkyAppUrl = (path = "") => new URL(String(path).replace(/^\/+/, ""), baseUrl).href;
+  window.PINKY_PORTAL_CONFIG = {
+    supabaseUrl: "https://YOUR_PROJECT_REF.supabase.co",
+    supabaseAnonKey: "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY",
+    vapidPublicKey: "BAt5szS3OrDvIGF9IKLl4ldfqm3Bh-7-Exv4KOYJWBjoatW2Nb71OEw_zbRM4pnTsN0o96Gf59B1fMNCRDUYxWk",
+    appName: "Pinky Daily Plan",
+    portalVersion: "1.5.0",
+    hosting: "github-pages-supabase"
+  };
+})();
