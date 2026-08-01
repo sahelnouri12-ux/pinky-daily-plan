@@ -31,6 +31,8 @@
   let syncing = false;
   let bootstrapped = false;
   let realtimeChannel = null;
+  let remotePollTimer = null;
+  let remoteCheckInFlight = false;
   let statusState = "syncing";
   let statusDetail = "";
 
@@ -106,6 +108,8 @@
     const serialized = JSON.stringify(remoteState);
     const stored = storage.set(STORAGE_KEY, serialized);
     if (!stored) window.__PINKY_BOOT_STATE__ = remoteState;
+    clearTimeout(syncTimer);
+    pendingSerialized = "";
     currentRevision = Number(remote.revision) || 0;
     currentRemoteUpdatedAt = remote.updated_at || null;
     lastSerialized = serialized;
@@ -282,31 +286,46 @@
     }, { once: true });
   }
 
-  function showRemoteUpdate(remote) {
-    if (!remote || Number(remote.revision) <= currentRevision || remote.device_id === deviceId) return;
+  function hasUnsyncedLocalChanges() {
     const meta = readMeta();
-    if (meta.dirty || pendingSerialized) {
+    return Boolean(meta.dirty || pendingSerialized || syncing);
+  }
+
+  function showRemoteUpdate(remote) {
+    if (!remote || Number(remote.revision) <= currentRevision || remote.device_id === deviceId) return false;
+
+    if (hasUnsyncedLocalChanges()) {
       showConflict(remote, storage.get(STORAGE_KEY) || "{}");
-      return;
+      return false;
     }
-    let banner = document.getElementById("portalConflictBanner");
-    if (!banner) {
-      banner = document.createElement("section");
-      banner.id = "portalConflictBanner";
-      banner.className = "portal-conflict-banner";
-      document.body.appendChild(banner);
+
+    if (!placeRemoteState(remote)) return false;
+    setStatus("synced", tr("نسخه تازه دریافت شد", "New copy received"));
+
+    // The planner keeps its working state in memory. Reload once so every view,
+    // counter and form immediately uses the newly downloaded cloud state.
+    setTimeout(() => location.reload(), 80);
+    return true;
+  }
+
+  async function checkForRemoteUpdates() {
+    if (!bootstrapped || !client || !user || !navigator.onLine || remoteCheckInFlight) return;
+    remoteCheckInFlight = true;
+    try {
+      const remote = await fetchRemoteState();
+      if (remote) showRemoteUpdate(remote);
+    } catch (error) {
+      console.warn("Could not check for newer Pinky cloud data", error);
+    } finally {
+      remoteCheckInFlight = false;
     }
-    banner.innerHTML = `
-      <strong>${tr("نسخه تازه از دستگاه دیگر رسید", "New data arrived from another device")}</strong>
-      <p>${tr("برای دیدن آخرین تغییرات، نسخه ابری را بارگذاری کن.", "Load the cloud copy to see the latest changes.")}</p>
-      <div class="portal-conflict-actions">
-        <button class="portal-soft-button" id="portalDismissRemote" type="button">${tr("فعلاً نه", "Not now")}</button>
-        <button class="portal-primary-button" id="portalLoadRemote" type="button">${tr("بارگذاری نسخه تازه", "Load new copy")}</button>
-      </div>`;
-    document.getElementById("portalDismissRemote")?.addEventListener("click", () => banner.remove(), { once: true });
-    document.getElementById("portalLoadRemote")?.addEventListener("click", () => {
-      if (placeRemoteState(remote)) location.reload();
-    }, { once: true });
+  }
+
+  function startRemotePolling() {
+    clearInterval(remotePollTimer);
+    remotePollTimer = setInterval(() => {
+      if (!document.hidden) checkForRemoteUpdates();
+    }, 15000);
   }
 
   async function loadProfile() {
@@ -395,19 +414,42 @@
 
     const observer = new MutationObserver(renderPortalUI);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir"] });
-    window.addEventListener("online", () => { setStatus("syncing"); flushSync(); });
+    window.addEventListener("online", async () => {
+      setStatus("syncing");
+      await flushSync();
+      checkForRemoteUpdates();
+    });
     window.addEventListener("offline", () => setStatus("offline"));
+    window.addEventListener("focus", checkForRemoteUpdates);
+    window.addEventListener("pageshow", checkForRemoteUpdates);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) checkForRemoteUpdates();
+    });
+    window.addEventListener("storage", event => {
+      if (event.key !== STORAGE_KEY || !event.newValue || event.newValue === lastSerialized) return;
+      if (hasUnsyncedLocalChanges()) return;
+      lastSerialized = event.newValue;
+      setTimeout(() => location.reload(), 50);
+    });
     renderPortalUI();
   }
 
   function startRealtime() {
     try {
+      const filter = `user_id=eq.${user.id}`;
       realtimeChannel = client
         .channel(`pinky-user-data-${user.id}`)
-        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "user_data", filter: `user_id=eq.${user.id}` }, payload => showRemoteUpdate(payload.new))
-        .subscribe();
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "user_data", filter }, payload => showRemoteUpdate(payload.new))
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "user_data", filter }, payload => showRemoteUpdate(payload.new))
+        .subscribe(status => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.warn("Realtime channel is unavailable; foreground polling remains active.");
+          }
+        });
+      startRemotePolling();
     } catch (error) {
       console.warn("Realtime subscription unavailable", error);
+      startRemotePolling();
     }
   }
 
@@ -458,6 +500,7 @@
     ready,
     scheduleSync,
     flushSync,
+    checkForRemoteUpdates,
     authHeaders,
     getClient: () => client,
     getSession: () => session,
