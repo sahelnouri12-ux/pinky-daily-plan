@@ -1,4 +1,4 @@
-const CACHE = "pinky-daily-plan-v1.5.1-multidevice-sync";
+const CACHE = "pinky-daily-plan-v1.5.2-sync-cachefix";
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
@@ -56,6 +56,25 @@ self.addEventListener("fetch", event => {
   const sameOriginInScope = url.origin === self.location.origin && url.href.startsWith(SCOPE);
   const allowedCrossOrigin = request.url === SUPABASE_CDN || sameOriginInScope;
   if (!allowedCrossOrigin) return;
+
+  const alwaysFreshPaths = new Set([
+    new URL("app.html", SCOPE).pathname,
+    new URL("assets/cloud-bridge.js", SCOPE).pathname
+  ]);
+
+  if (sameOriginInScope && alwaysFreshPaths.has(url.pathname)) {
+    event.respondWith((async () => {
+      try {
+        const freshRequest = new Request(request, { cache: "no-store" });
+        const response = await fetch(freshRequest);
+        if (response.ok) (await caches.open(CACHE)).put(request, response.clone());
+        return response;
+      } catch {
+        return (await caches.match(request)) || Response.error();
+      }
+    })());
+    return;
+  }
 
   if (sameOriginInScope && url.pathname === new URL("config.js", SCOPE).pathname) {
     event.respondWith((async () => {
