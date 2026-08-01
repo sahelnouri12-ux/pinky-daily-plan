@@ -1,12 +1,10 @@
 (() => {
   "use strict";
 
-  const SYNC_PATCH_VERSION = "1.5.2";
-  window.PINKY_SYNC_PATCH_VERSION = SYNC_PATCH_VERSION;
-
   const STORAGE_KEY = "pinky-day-planner-v1";
   const META_PREFIX = "pinky-day-cloud-meta:";
   const CONFLICT_BACKUP_KEY = "pinky-day-cloud-conflict-backup";
+  const REMOTE_APPLY_FLAG = "pinky-day-cloud-remote-applied";
   const config = window.PINKY_PORTAL_CONFIG || {};
   const appUrl = path => window.PinkyAppUrl ? window.PinkyAppUrl(path) : new URL(String(path).replace(/^\/+/, ""), location.href).href;
   const isConfigured = Boolean(
@@ -34,10 +32,21 @@
   let syncing = false;
   let bootstrapped = false;
   let realtimeChannel = null;
-  let remotePollTimer = null;
   let remoteCheckInFlight = false;
+  let remoteReloadScheduled = false;
+  let lastRemoteCheckAt = 0;
+  let suppressNextLocalSync = false;
+  let suppressSyncUntil = 0;
   let statusState = "syncing";
   let statusDetail = "";
+
+  try {
+    if (storage.get(REMOTE_APPLY_FLAG) === "1") {
+      suppressNextLocalSync = true;
+      suppressSyncUntil = Date.now() + 10000;
+      storage.remove(REMOTE_APPLY_FLAG);
+    }
+  } catch {}
 
   const deviceId = (() => {
     try {
@@ -101,7 +110,7 @@
     return data;
   }
 
-  function placeRemoteState(remote) {
+  function placeRemoteState(remote, { prepareReload = false } = {}) {
     const remoteState = parseState(remote?.data);
     if (!remoteState) return false;
     const previous = storage.get(STORAGE_KEY);
@@ -113,6 +122,9 @@
     if (!stored) window.__PINKY_BOOT_STATE__ = remoteState;
     clearTimeout(syncTimer);
     pendingSerialized = "";
+    suppressNextLocalSync = true;
+    suppressSyncUntil = Date.now() + 10000;
+    if (prepareReload) storage.set(REMOTE_APPLY_FLAG, "1");
     currentRevision = Number(remote.revision) || 0;
     currentRemoteUpdatedAt = remote.updated_at || null;
     lastSerialized = serialized;
@@ -236,6 +248,17 @@
   function scheduleSync(state) {
     if (!bootstrapped || !user || !state || typeof state !== "object") return;
     const serialized = JSON.stringify(state);
+    if (suppressNextLocalSync && Date.now() <= suppressSyncUntil) {
+      suppressNextLocalSync = false;
+      suppressSyncUntil = 0;
+      lastSerialized = serialized;
+      pendingSerialized = "";
+      writeMeta({ dirty: false, localUpdatedAt: currentRemoteUpdatedAt || new Date().toISOString(), remoteUpdatedAt: currentRemoteUpdatedAt, revision: currentRevision });
+      setStatus("synced");
+      return;
+    }
+    suppressNextLocalSync = false;
+    suppressSyncUntil = 0;
     if (serialized === lastSerialized && !pendingSerialized) return;
     pendingSerialized = serialized;
     writeMeta({ dirty: true, localUpdatedAt: new Date().toISOString(), revision: currentRevision });
@@ -302,17 +325,22 @@
       return false;
     }
 
-    if (!placeRemoteState(remote)) return false;
+    if (remoteReloadScheduled) return false;
+    if (!placeRemoteState(remote, { prepareReload: true })) return false;
     setStatus("synced", tr("نسخه تازه دریافت شد", "New copy received"));
 
-    // The planner keeps its working state in memory. Reload once so every view,
-    // counter and form immediately uses the newly downloaded cloud state.
-    setTimeout(() => location.reload(), 80);
+    // Reload only once. The remote-apply flag prevents the first render after
+    // reload from being written back as a new revision.
+    remoteReloadScheduled = true;
+    setTimeout(() => location.reload(), 120);
     return true;
   }
 
   async function checkForRemoteUpdates() {
-    if (!bootstrapped || !client || !user || !navigator.onLine || remoteCheckInFlight) return;
+    if (!bootstrapped || !client || !user || !navigator.onLine || remoteCheckInFlight || remoteReloadScheduled) return;
+    const now = Date.now();
+    if (now - lastRemoteCheckAt < 3000) return;
+    lastRemoteCheckAt = now;
     remoteCheckInFlight = true;
     try {
       const remote = await fetchRemoteState();
@@ -322,14 +350,6 @@
     } finally {
       remoteCheckInFlight = false;
     }
-  }
-
-  function startRemotePolling() {
-    clearInterval(remotePollTimer);
-    checkForRemoteUpdates();
-    remotePollTimer = setInterval(() => {
-      if (!document.hidden) checkForRemoteUpdates();
-    }, 5000);
   }
 
   async function loadProfile() {
@@ -447,13 +467,11 @@
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "user_data", filter }, payload => showRemoteUpdate(payload.new))
         .subscribe(status => {
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-            console.warn("Realtime channel is unavailable; foreground polling remains active.");
+            console.warn("Realtime channel is unavailable; sync will recheck when the app is opened or focused.");
           }
         });
-      startRemotePolling();
     } catch (error) {
       console.warn("Realtime subscription unavailable", error);
-      startRemotePolling();
     }
   }
 
@@ -464,7 +482,7 @@
     }
     client = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-      global: { headers: { "X-Client-Info": "pinky-daily-plan-pages/1.5.0" } }
+      global: { headers: { "X-Client-Info": "pinky-daily-plan-pages/1.5.3" } }
     });
     const { data, error } = await client.auth.getSession();
     if (error) throw error;
@@ -485,6 +503,7 @@
     await Promise.all([bootstrapData(), loadProfile()]);
     bootstrapped = true;
     startRealtime();
+    checkForRemoteUpdates();
     if (document.readyState === "loading") {
       await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
     }
