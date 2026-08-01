@@ -1,0 +1,61 @@
+import { json, requireUser, safeString } from "../lib/server.mjs";
+
+export default {
+  async fetch(request) {
+    if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, { Allow: "POST" });
+    const auth = await requireUser(request);
+    if (auth.error) return auth.error;
+    const body = await request.json().catch(() => null);
+    const deviceId = safeString(body?.deviceId, 180);
+    if (!deviceId || !Array.isArray(body?.reminders)) return json({ error: "Invalid reminder payload" }, 400);
+
+    const language = body?.language === "en" ? "en" : "fa";
+    const incoming = new Map();
+    for (const item of body.reminders.slice(0, 500)) {
+      const timestamp = Date.parse(item?.reminderAt);
+      const taskId = safeString(item?.id, 180);
+      const title = safeString(item?.title, 240);
+      if (!Number.isFinite(timestamp) || !taskId || !title) continue;
+      incoming.set(taskId, { taskId, title, reminderAt: new Date(timestamp).toISOString() });
+    }
+
+    const { data: existingRows, error: existingError } = await auth.supabase
+      .from("push_reminders")
+      .select("id,task_id,title,reminder_at,sent_at,delivery_status,processing_at,attempt_count,last_error")
+      .eq("user_id", auth.user.id)
+      .eq("device_id", deviceId);
+    if (existingError) return json({ error: existingError.message }, 500);
+
+    const existing = new Map((existingRows || []).map(row => [row.task_id, row]));
+    const removedIds = (existingRows || []).filter(row => !incoming.has(row.task_id)).map(row => row.id);
+    if (removedIds.length) {
+      const { error } = await auth.supabase.from("push_reminders").delete().in("id", removedIds);
+      if (error) return json({ error: error.message }, 500);
+    }
+
+    const rows = [];
+    for (const item of incoming.values()) {
+      const old = existing.get(item.taskId);
+      const sameTime = old && new Date(old.reminder_at).getTime() === new Date(item.reminderAt).getTime();
+      rows.push({
+        user_id: auth.user.id,
+        device_id: deviceId,
+        task_id: item.taskId,
+        title: item.title,
+        reminder_at: item.reminderAt,
+        language,
+        sent_at: sameTime ? old.sent_at : null,
+        delivery_status: sameTime ? old.delivery_status : null,
+        processing_at: null,
+        attempt_count: sameTime ? (old.attempt_count || 0) : 0,
+        last_error: sameTime ? old.last_error : null,
+        updated_at: new Date().toISOString()
+      });
+    }
+    if (rows.length) {
+      const { error } = await auth.supabase.from("push_reminders").upsert(rows, { onConflict: "user_id,device_id,task_id" });
+      if (error) return json({ error: error.message }, 500);
+    }
+    return json({ ok: true, count: rows.length, removed: removedIds.length });
+  }
+};

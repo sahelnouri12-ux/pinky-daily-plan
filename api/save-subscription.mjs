@@ -1,0 +1,24 @@
+import { json, requireUser, safeString } from "../lib/server.mjs";
+
+export default {
+  async fetch(request) {
+    if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, { Allow: "POST" });
+    const auth = await requireUser(request);
+    if (auth.error) return auth.error;
+    const body = await request.json().catch(() => null);
+    const deviceId = safeString(body?.deviceId, 180);
+    const subscription = body?.subscription;
+    if (!deviceId || !subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
+      return json({ error: "Invalid push subscription" }, 400);
+    }
+    const { error } = await auth.supabase.from("push_subscriptions").upsert({
+      user_id: auth.user.id,
+      device_id: deviceId,
+      subscription,
+      language: body?.language === "en" ? "en" : "fa",
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id,device_id" });
+    if (error) return json({ error: error.message }, 500);
+    return json({ ok: true });
+  }
+};

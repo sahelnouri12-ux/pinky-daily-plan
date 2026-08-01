@@ -1,0 +1,18 @@
+{
+  "name": "pinky-daily-plan-vercel",
+  "version": "1.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/generate-config.mjs",
+    "check": "node scripts/check-project.mjs",
+    "generate:secrets": "node scripts/generate-secrets.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.57.4",
+    "web-push": "3.6.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
