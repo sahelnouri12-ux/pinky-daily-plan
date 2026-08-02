@@ -226,13 +226,8 @@
   }
 
   function scheduleSync(state) {
-    if (!bootstrapped || !user || !state || typeof state !== "object") return;
-    const serialized = JSON.stringify(state);
-    if (serialized === lastSerialized && !pendingSerialized) return;
-    pendingSerialized = serialized;
-    writeMeta({ dirty: true, localUpdatedAt: new Date().toISOString(), revision: currentRevision });
-    setStatus(navigator.onLine ? "syncing" : "offline");
-    scheduleFlush();
+  return;
+
   }
 
   function authHeaders(extra = {}) {
