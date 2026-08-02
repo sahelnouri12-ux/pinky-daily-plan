@@ -422,7 +422,7 @@
 
     await Promise.all([bootstrapData(), loadProfile()]);
     bootstrapped = true;
-    startRealtime();
+    // startRealtime();
     if (document.readyState === "loading") {
       await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
     }
