@@ -3,22 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#e94d8a">
+<meta name="theme-color" content="#d93678">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pinky Daily Plan">
 <link rel="icon" href="./favicon.ico?v=6" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=6">
 <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=6">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=6">
 <link rel="manifest" href="./manifest.json">
-<link rel="stylesheet" href="./assets/css/auth.css?v=1.6.0">
-<script src="./config.js"></script>
+<link rel="stylesheet" href="./assets/css/auth.css?v=1.8.0">
+<script src="./assets/js/app-version.js?v=1.8.0"></script>
+<script src="./config.js?v=1.8.0"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js" defer></script>
 
 <title>ورود | Pinky Daily Plan</title>
 <meta name="robots" content="noindex">
 </head>
-<body class="auth-site auth-page" data-auth-page="login">
+<body class="auth-site auth-page auth-booting" data-auth-page="login">
+<div class="auth-splash" id="authSplash" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="splashTitle" aria-describedby="splashTagline splashStatus">
+  <div class="splash-brand">
+    <img class="splash-logo" src="./icon-512.png" width="112" height="112" alt="">
+    <h1 class="splash-title" id="splashTitle">Pinky Daily Plan</h1>
+    <p class="splash-tagline" id="splashTagline" data-i18n="brandTagline">همراه آرام برنامه‌ریزی و پیشرفت روزانه</p>
+  </div>
+  <div class="splash-progress">
+    <div class="splash-dots" aria-hidden="true">
+      <span class="splash-dot"></span>
+      <span class="splash-dot"></span>
+      <span class="splash-dot"></span>
+    </div>
+    <p class="splash-status" id="splashStatus" data-i18n="splashPreparing">در حال آماده‌سازی برنامه…</p>
+  </div>
+  <p class="splash-version"><span data-i18n="versionLabel">نسخه</span> <b data-app-version>1.8.0</b></p>
+</div>
+<div class="auth-shell" id="authShell" inert aria-hidden="true">
 <a class="skip-link" href="#main-content" data-i18n="skip">رفتن به محتوای اصلی</a>
 <header class="site-header">
   <a class="brand-link" href="./index.html" aria-label="Pinky Daily Plan">
@@ -47,9 +68,16 @@
       </ul>
     </aside>
     <section class="auth-card" aria-labelledby="auth-title">
+      <div class="auth-card-brand">
+        <img src="./icon-512.png" width="72" height="72" alt="">
+        <div>
+          <strong>Pinky Daily Plan</strong>
+          <span data-i18n="brandTagline">همراه آرام برنامه‌ریزی و پیشرفت روزانه</span>
+        </div>
+      </div>
       <div class="auth-card-heading">
-        <h1 id="auth-title" data-i18n="loginTitle">ورود</h1>
-        <p data-i18n="loginSubtitle"></p>
+        <h1 id="auth-title" data-i18n="loginTitle">ورود به Pinky Daily Plan</h1>
+        <p data-i18n="loginSubtitle">برای دسترسی به برنامه‌ها و همگام‌سازی اطلاعاتت وارد حساب شو.</p>
       </div>
       <div class="page-status" id="pageStatus" role="status" aria-live="polite" aria-atomic="true"></div>
       <form class="auth-form" id="loginForm" novalidate>
@@ -82,10 +110,11 @@
   <span aria-hidden="true">•</span>
   <span>© Pinky Daily Plan</span>
 </footer>
+</div>
 
 <noscript><div class="noscript-message">برای ورود یا ساخت حساب، JavaScript را فعال کنید.</div></noscript>
-<script type="module" src="./assets/js/auth-page.js?v=1.6.0"></script>
-<script type="module" src="./assets/js/pwa-register.js?v=1.6.0"></script>
+<script type="module" src="./assets/js/auth-page.js?v=1.8.0"></script>
+<script type="module" src="./assets/js/pwa-register.js?v=1.8.0"></script>
 
 </body>
 </html>
