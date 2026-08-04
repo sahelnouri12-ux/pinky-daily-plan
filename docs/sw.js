@@ -1,4 +1,7 @@
-const CACHE = "pinky-daily-plan-v1.6.0-auth-portal";
+importScripts("./assets/js/app-version.js");
+
+const APP_VERSION = self.PINKY_APP_VERSION || "2.1.1";
+const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal`;
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
@@ -31,6 +34,7 @@ const SHELL = [
   "assets/reset.js",
   "assets/admin.js",
   "assets/css/auth.css",
+  "assets/js/app-version.js",
   "assets/js/supabase-client.js",
   "assets/js/auth-service.js",
   "assets/js/auth-ui.js",
@@ -75,6 +79,19 @@ function navigationFallback(url) {
   return asset("app.html");
 }
 
+function hasSensitiveAuthQuery(url) {
+  const sensitiveKeys = [
+    "code",
+    "token",
+    "token_hash",
+    "access_token",
+    "refresh_token",
+    "provider_token"
+  ];
+  return sensitiveKeys.some(key => url.searchParams.has(key)) ||
+    ["recovery", "signup", "email", "email_change"].includes(String(url.searchParams.get("type") || "").toLowerCase());
+}
+
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -85,13 +102,14 @@ self.addEventListener("fetch", event => {
     event.respondWith((async () => {
       try {
         const response = await fetch(new Request(request, { cache: "no-store" }));
-        if (response.ok) {
-          (await caches.open(CACHE)).put(request, response.clone());
+        if (response.ok && !hasSensitiveAuthQuery(url)) {
+          const cacheKey = new Request(new URL(url.pathname, SCOPE).href, { method: "GET" });
+          (await caches.open(CACHE)).put(cacheKey, response.clone());
         }
         return response;
       } catch {
         return (
-          (await caches.match(request)) ||
+          (await caches.match(new Request(new URL(url.pathname, SCOPE).href))) ||
           (await caches.match(navigationFallback(url))) ||
           Response.error()
         );
@@ -153,8 +171,8 @@ self.addEventListener("push", event => {
   const title = payload.title || "Pinky Daily Plan ♡";
   const options = {
     body: payload.body || "یک یادآوری برایت داری.",
-    icon: asset("icon-192.png?v=15"),
-    badge: asset("icon-192.png?v=15"),
+    icon: asset(`icon-192.png?v=${APP_VERSION}`),
+    badge: asset(`icon-192.png?v=${APP_VERSION}`),
     tag: payload.tag || `pinky-${Date.now()}`,
     data: {
       url: new URL(payload.url || "app.html#today", SCOPE).href
