@@ -1,6 +1,6 @@
 importScripts("./assets/js/app-version.js");
 
-const APP_VERSION = self.PINKY_APP_VERSION || "2.4.3";
+const APP_VERSION = self.PINKY_APP_VERSION || "2.4.6";
 const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal`;
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;

@@ -634,7 +634,7 @@
     .add-milestone-form { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; gap: 7px; }
 
 
-    /* Goal checklists, routine reminders, and gentle free days — v2.4.3 */
+    /* Goal checklists, routine reminders, and gentle free days — v2.4.6 */
     .subtask-check {
       width: 42px; height: 42px; min-width: 42px; min-height: 42px; border-radius: 13px;
       cursor: pointer; touch-action: manipulation; transition: transform .16s ease, background .16s ease, border-color .16s ease;
@@ -929,7 +929,6 @@
         radial-gradient(circle at 93% 10%, var(--ambient-b), transparent 27%),
         radial-gradient(circle at 52% 92%, var(--ambient-c), transparent 34%),
         linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 56%, var(--bg) 100%);
-      background-attachment: fixed;
     }
     .ambient-layer {
       position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none;
@@ -2674,7 +2673,7 @@
 
 
 
-    /* Slightly smaller typography and plan-first hierarchy — v2.4.3 */
+    /* Slightly smaller typography and plan-first hierarchy — v2.4.6 */
     html { font-size: 15.5px; }
     @media (max-width: 760px) {
       input, select, textarea { font-size: 16px; }
@@ -2682,7 +2681,7 @@
 
 
 
-    /* Calm Today redesign — v2.4.3 (based on v2.2.0) */
+    /* Calm Today redesign — v2.4.6 (based on v2.2.0) */
     :root {
       --calm-page: color-mix(in srgb, var(--bg) 82%, #fff);
       --calm-surface: color-mix(in srgb, var(--surface-solid) 97%, transparent);
@@ -3059,7 +3058,7 @@
     }
 
 
-    /* PWA chrome, account placement and desktop splash polish — v2.4.3 */
+    /* PWA chrome, account placement and desktop splash polish — v2.4.6 */
     .pwa-status-glass { display: none; }
     .portal-account-settings {
       display: flex;
@@ -3124,7 +3123,14 @@
         font-size: 1.42rem;
         letter-spacing: -.025em;
       }
-      .portal-loading-screen.calm-brand-loading .portal-loading-tagline,
+      .portal-loading-screen.calm-brand-loading .portal-loading-tagline {
+        display: block;
+        max-width: 420px;
+        margin: 8px auto 0;
+        font-size: .78rem;
+        line-height: 1.85;
+        text-align: center;
+      }
       .portal-loading-screen.calm-brand-loading .portal-loading-dots,
       .portal-loading-screen.calm-brand-loading .portal-loading-status {
         display: none !important;
@@ -3173,7 +3179,7 @@
     }
 
 
-    /* Routine cards visually unified with Today's task cards — v2.4.3 */
+    /* Routine cards visually unified with Today's task cards — v2.4.6 */
     body.calm-today-redesign[data-active-product-view="today"] #routinePanel .care-routine {
       gap: 14px;
     }
@@ -3364,7 +3370,7 @@
 
 
 
-    /* Wider, balanced desktop Today layout — v2.4.3 */
+    /* Wider, balanced desktop Today layout — v2.4.6 */
     @media (min-width: 1180px) {
       body.calm-today-redesign .app-shell {
         width: min(calc(100% - 40px), 1320px);
@@ -3402,11 +3408,437 @@
       }
     }
 
+
+    /* Timeline, weather, goals and dark-mode polish — v2.4.6 */
+    body.calm-today-redesign {
+      --calm-card-surface: #fff;
+      --calm-control-surface: #fff;
+      --calm-subtle-surface: color-mix(in srgb, var(--surface-2) 72%, #fff);
+    }
+
+    /* Weather stays fully visible; only energy/free-day and routine editor remain collapsible. */
+    body.calm-today-redesign[data-active-product-view="today"] .hero-weather .weather-status-row,
+    body.calm-today-redesign[data-active-product-view="today"] .hero-weather .weather-metrics,
+    body.calm-today-redesign[data-active-product-view="today"] .hero-weather .weather-error {
+      display: flex;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-weather .weather-metrics {
+      display: grid;
+    }
+
+    /* Timeline is a first-class panel above routines, never inside the compact More section. */
+    body.calm-today-redesign[data-active-product-view="today"] #timelinePanel {
+      min-width: 0;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #timelinePanel .timeline {
+      gap: 9px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #timelinePanel .timeline-card {
+      background: var(--calm-card-surface) !important;
+    }
+
+    /* Goals use a flat editorial list instead of nested cards inside cards. */
+    #goalsPanel .goals-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    #goalsPanel .goal-card {
+      overflow: visible;
+      padding: 20px 2px;
+      border: 0 !important;
+      border-bottom: 1px solid var(--border) !important;
+      border-radius: 0;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    #goalsPanel .goal-card:first-child { padding-top: 4px; }
+    #goalsPanel .goal-card:last-child { padding-bottom: 4px; border-bottom: 0 !important; }
+    #goalsPanel .goal-card::after { display: none; }
+    #goalsPanel .goal-top {
+      grid-template-columns: minmax(0, 1fr) 68px;
+      gap: 14px;
+      padding-inline: 2px;
+    }
+    #goalsPanel .goal-ring { width: 64px; }
+    #goalsPanel .goal-ring::before { inset: 7px; }
+    #goalsPanel .goal-ring strong { font-size: .86rem; }
+    #goalsPanel .milestone-list {
+      gap: 0;
+      margin: 15px 0 12px;
+      border-top: 1px solid var(--border);
+    }
+    #goalsPanel .milestone {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 12px 2px;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 74%, transparent);
+      border-radius: 0;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    #goalsPanel .milestone:last-child { border-bottom: 0; }
+    #goalsPanel .milestone-main { gap: 8px; }
+    #goalsPanel .goal-subtasks {
+      gap: 4px;
+      padding: 4px 11px 2px 0;
+      border: 0;
+      border-inline-start: 2px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+      border-radius: 0;
+      background: transparent;
+    }
+    html[dir="ltr"] #goalsPanel .goal-subtasks { padding: 4px 0 2px 11px; }
+    #goalsPanel .goal-subtask-progress {
+      padding-block: 2px 4px;
+      color: var(--muted);
+    }
+    #goalsPanel .goal-subtask-row {
+      min-height: 46px;
+      padding: 2px 0;
+      border: 0;
+      border-bottom: 1px dashed color-mix(in srgb, var(--border) 70%, transparent);
+      border-radius: 0;
+      background: transparent;
+    }
+    #goalsPanel .goal-subtask-row:last-child { border-bottom: 0; }
+    #goalsPanel .goal-subtask-add {
+      margin-top: 5px;
+      padding-top: 7px;
+      border-top: 1px solid color-mix(in srgb, var(--border) 66%, transparent);
+    }
+    #goalsPanel .add-milestone-form {
+      padding: 9px;
+      border: 1px dashed var(--border-strong);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-2) 62%, transparent);
+    }
+    #goalsPanel .goal-actions { justify-content: flex-end; }
+
+    /* Replace hard-coded white controls/cards with theme-aware surfaces. */
+    body.calm-today-redesign[data-active-product-view="today"] :is(
+      .hero-metric,
+      .energy-section,
+      .free-day-card,
+      .quick-form .input,
+      .quick-form .select,
+      .filter-btn:not(.active),
+      .task-density-btn,
+      .sort-select,
+      .task-item,
+      .routine-item,
+      .reminder-item,
+      .timeline-card,
+      #routinePanel .routine-sort-select
+    ) {
+      background: var(--calm-card-surface) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] :is(
+      .quick-form,
+      .task-toolbar,
+      #routinePanel .routine-overview,
+      #routinePanel .routine-toolbar
+    ) {
+      background: var(--calm-subtle-surface) !important;
+    }
+
+    :root[data-theme="dark"] body.calm-today-redesign {
+      --calm-page: color-mix(in srgb, var(--bg) 92%, #000);
+      --calm-surface: color-mix(in srgb, var(--surface-solid) 94%, transparent);
+      --calm-line: color-mix(in srgb, var(--border) 92%, transparent);
+      --calm-card-surface: color-mix(in srgb, var(--surface-solid) 86%, var(--surface-2));
+      --calm-control-surface: var(--surface-2);
+      --calm-subtle-surface: color-mix(in srgb, var(--surface-2) 88%, var(--surface-solid));
+      --calm-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+      --calm-shadow-sm: 0 3px 12px rgba(0, 0, 0, .15);
+    }
+    :root[data-theme="dark"] body.calm-today-redesign :is(
+      .icon-btn,
+      .soft-btn,
+      .ghost-btn,
+      .mini-btn,
+      .danger-btn,
+      .task-density-btn,
+      .sort-select,
+      .routine-sort-select,
+      .routine-edit,
+      .routine-delete,
+      .date-quick-btn,
+      .today-task-toggle:not([aria-pressed="true"]),
+      .planner-nav-button,
+      .planner-today-button,
+      .planner-view-tab:not(.active),
+      .section-shortcut-button:not(.is-active):not(.section-shortcut-primary),
+      .filter-btn:not(.active),
+      .energy-btn:not([aria-pressed="true"]),
+      .language-btn,
+      .modal-close,
+      .free-day-toggle:not([aria-pressed="true"]),
+      .free-day-transfer,
+      .task-start-now-btn
+    ) {
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+      background: var(--calm-control-surface) !important;
+      box-shadow: none !important;
+    }
+    :root[data-theme="dark"] body.calm-today-redesign :is(
+      .icon-btn,
+      .soft-btn,
+      .ghost-btn,
+      .mini-btn,
+      .task-density-btn,
+      .routine-edit,
+      .date-quick-btn,
+      .today-task-toggle:not([aria-pressed="true"]),
+      .planner-nav-button,
+      .planner-today-button,
+      .planner-view-tab:not(.active),
+      .section-shortcut-button:not(.is-active):not(.section-shortcut-primary),
+      .filter-btn:not(.active),
+      .energy-btn:not([aria-pressed="true"]),
+      .language-btn,
+      .modal-close,
+      .free-day-toggle:not([aria-pressed="true"]),
+      .free-day-transfer,
+      .task-start-now-btn
+    ):hover {
+      color: var(--accent-strong) !important;
+      border-color: var(--border-strong) !important;
+      background: color-mix(in srgb, var(--calm-control-surface) 82%, var(--accent-faint)) !important;
+    }
+    :root[data-theme="dark"] body.calm-today-redesign .danger-btn,
+    :root[data-theme="dark"] body.calm-today-redesign .routine-delete {
+      color: var(--danger) !important;
+    }
+    :root[data-theme="dark"] body.calm-today-redesign :is(.input, .select, .textarea, .report-select) {
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+      background: var(--surface-2) !important;
+    }
+    :root[data-theme="dark"] body.calm-today-redesign :is(.panel, .hero-main, .hero-progress, .today-more-details) {
+      background: var(--calm-surface) !important;
+    }
+
+    @media (min-width: 1180px) {
+      body.calm-today-redesign[data-active-product-view="today"] .today-primary-stack {
+        grid-template-areas:
+          "tasks timeline"
+          "tasks routine"
+          "tasks more";
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #timelinePanel { grid-area: timeline; }
+    }
+    @media (max-width: 760px) {
+      #goalsPanel .goal-top { grid-template-columns: minmax(0, 1fr) 58px; }
+      #goalsPanel .goal-ring { width: 56px; }
+      #goalsPanel .milestone { grid-template-columns: auto minmax(0, 1fr); }
+      #goalsPanel .milestone > .task-actions {
+        grid-column: 2;
+        justify-content: flex-end;
+      }
+      #goalsPanel .goal-subtask-add { grid-template-columns: 1fr; }
+      #goalsPanel .goal-subtask-add .soft-btn { width: 100%; }
+    }
+
+
+    /* Theme-safe glassmorphism and non-destructive appearance toggle — v2.4.6 */
+    body.calm-today-redesign {
+      --glass-surface: rgba(255, 255, 255, .58);
+      --glass-surface-strong: rgba(255, 255, 255, .72);
+      --glass-surface-soft: rgba(255, 255, 255, .40);
+      --glass-control: rgba(255, 255, 255, .50);
+      --glass-line: rgba(255, 255, 255, .58);
+      --glass-highlight: rgba(255, 255, 255, .72);
+      --glass-shadow: 0 16px 46px color-mix(in srgb, var(--plum) 13%, transparent), inset 0 1px 0 var(--glass-highlight);
+      --glass-shadow-soft: 0 8px 26px color-mix(in srgb, var(--plum) 9%, transparent), inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 78%, transparent);
+      background:
+        radial-gradient(circle at 9% 4%, var(--ambient-a), transparent 31%),
+        radial-gradient(circle at 92% 8%, var(--ambient-b), transparent 29%),
+        radial-gradient(circle at 54% 96%, var(--ambient-c), transparent 35%),
+        linear-gradient(155deg, var(--bg), var(--bg-soft) 52%, var(--bg));
+      background-attachment: fixed;
+    }
+    :root[data-theme="dark"] body.calm-today-redesign {
+      --glass-surface: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+      --glass-surface-strong: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+      --glass-surface-soft: color-mix(in srgb, var(--surface-2) 58%, transparent);
+      --glass-control: color-mix(in srgb, var(--surface-2) 72%, transparent);
+      --glass-line: rgba(255, 255, 255, .12);
+      --glass-highlight: rgba(255, 255, 255, .10);
+      --glass-shadow: 0 18px 52px rgba(0, 0, 0, .27), inset 0 1px 0 var(--glass-highlight);
+      --glass-shadow-soft: 0 9px 28px rgba(0, 0, 0, .20), inset 0 1px 0 rgba(255, 255, 255, .07);
+    }
+
+    body.calm-today-redesign :is(
+      .topbar,
+      .primary-navigation,
+      .section-shortcuts,
+      .hero-main,
+      .hero-progress,
+      .atmosphere-panel,
+      .panel,
+      .planner-panel,
+      .today-more-details,
+      .modal-shell,
+      .portal-account-settings,
+      .portal-conflict-banner
+    ) {
+      border-color: var(--glass-line) !important;
+      background: var(--glass-surface) !important;
+      box-shadow: var(--glass-shadow) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(145%);
+      backdrop-filter: blur(20px) saturate(145%);
+    }
+
+    body.calm-today-redesign :is(
+      .task-item,
+      .routine-item,
+      .timeline-card,
+      .reminder-item,
+      .planner-day-card,
+      .planner-agenda-item,
+      .planner-summary-card,
+      .performance-card,
+      .achievement,
+      .reflection-entry,
+      .free-day-card,
+      .energy-section,
+      .quick-form,
+      .routine-overview,
+      .routine-toolbar,
+      .rollover-banner,
+      .push-settings-card,
+      .portal-account-summary,
+      .weather-metric,
+      .inbox-panel,
+      .self-care-category
+    ) {
+      border-color: color-mix(in srgb, var(--glass-line) 72%, var(--border)) !important;
+      background: var(--glass-surface-soft) !important;
+      box-shadow: var(--glass-shadow-soft) !important;
+      -webkit-backdrop-filter: blur(15px) saturate(132%);
+      backdrop-filter: blur(15px) saturate(132%);
+    }
+
+    body.calm-today-redesign :is(
+      .icon-btn,
+      .soft-btn,
+      .ghost-btn,
+      .mini-btn,
+      .danger-btn,
+      .task-density-btn,
+      .sort-select,
+      .routine-sort-select,
+      .routine-edit,
+      .routine-delete,
+      .date-quick-btn,
+      .planner-nav-button,
+      .planner-today-button,
+      .planner-view-tab:not(.active),
+      .section-shortcut-button:not(.is-active):not(.section-shortcut-primary),
+      .filter-btn:not(.active),
+      .energy-btn:not([aria-pressed="true"]),
+      .language-btn,
+      .modal-close,
+      .free-day-toggle:not([aria-pressed="true"]),
+      .free-day-transfer,
+      .task-start-now-btn,
+      .portal-mini-button,
+      .portal-mini-link
+    ) {
+      color: var(--text) !important;
+      border-color: color-mix(in srgb, var(--glass-line) 72%, var(--border)) !important;
+      background: var(--glass-control) !important;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 72%, transparent), 0 4px 14px color-mix(in srgb, var(--plum) 7%, transparent) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(132%);
+      backdrop-filter: blur(12px) saturate(132%);
+    }
+    body.calm-today-redesign :is(
+      .icon-btn,
+      .soft-btn,
+      .ghost-btn,
+      .mini-btn,
+      .task-density-btn,
+      .routine-edit,
+      .date-quick-btn,
+      .planner-nav-button,
+      .planner-today-button,
+      .planner-view-tab:not(.active),
+      .section-shortcut-button:not(.is-active):not(.section-shortcut-primary),
+      .filter-btn:not(.active),
+      .energy-btn:not([aria-pressed="true"]),
+      .language-btn,
+      .modal-close,
+      .free-day-toggle:not([aria-pressed="true"]),
+      .free-day-transfer,
+      .task-start-now-btn,
+      .portal-mini-button,
+      .portal-mini-link
+    ):hover {
+      color: var(--accent-strong) !important;
+      border-color: var(--border-strong) !important;
+      background: color-mix(in srgb, var(--glass-control) 82%, var(--accent-faint)) !important;
+    }
+    body.calm-today-redesign :is(.danger-btn, .routine-delete) {
+      color: var(--danger) !important;
+    }
+
+    body.calm-today-redesign :is(.input, .select, .textarea, .report-select) {
+      color: var(--text) !important;
+      border-color: color-mix(in srgb, var(--glass-line) 64%, var(--border)) !important;
+      background: var(--glass-control) !important;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 65%, transparent) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(125%);
+      backdrop-filter: blur(12px) saturate(125%);
+    }
+    body.calm-today-redesign :is(.input, .select, .textarea, .report-select):focus {
+      border-color: var(--accent) !important;
+      box-shadow: var(--focus) !important;
+    }
+
+    /* Keep nested goal rows flat; only the parent Goals panel receives glass. */
+    body.calm-today-redesign #goalsPanel :is(.goal-card, .milestone, .goal-subtasks, .goal-subtask-row) {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+    }
+
+    @media (max-width: 760px) {
+      body.calm-today-redesign :is(
+        .topbar, .primary-navigation, .section-shortcuts, .hero-main, .hero-progress,
+        .atmosphere-panel, .panel, .planner-panel, .today-more-details, .modal-shell
+      ) {
+        -webkit-backdrop-filter: blur(14px) saturate(135%);
+        backdrop-filter: blur(14px) saturate(135%);
+      }
+      body.calm-today-redesign :is(
+        .task-item, .routine-item, .timeline-card, .reminder-item, .planner-day-card,
+        .planner-agenda-item, .performance-card, .achievement, .reflection-entry,
+        .free-day-card, .energy-section, .quick-form, .routine-overview, .routine-toolbar
+      ) {
+        -webkit-backdrop-filter: blur(9px) saturate(122%);
+        backdrop-filter: blur(9px) saturate(122%);
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      body.calm-today-redesign :is(
+        .topbar, .primary-navigation, .section-shortcuts, .hero-main, .hero-progress,
+        .atmosphere-panel, .panel, .planner-panel, .today-more-details, .modal-shell,
+        .task-item, .routine-item, .timeline-card, .reminder-item, .planner-day-card,
+        .planner-agenda-item, .performance-card, .achievement, .reflection-entry,
+        .free-day-card, .energy-section, .quick-form, .routine-overview, .routine-toolbar
+      ) {
+        background: var(--surface-solid) !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+
 </style>
 
   <link rel="stylesheet" href="./assets/portal.css">
-  <script src="./assets/js/app-version.js?v=2.4.3"></script>
-  <script src="./config.js?v=2.4.3"></script>
+  <script src="./assets/js/app-version.js?v=2.4.6"></script>
+  <script src="./config.js?v=2.4.6"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2.57.4"></script>
   <script src="./assets/cloud-bridge.js?v=1.5.3"></script>
 </head>
@@ -3419,7 +3851,7 @@
       <p class="portal-loading-tagline">همراه آرام برنامه‌ریزی و پیشرفت روزانه</p>
       <div class="portal-loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
       <p class="portal-loading-status">در حال ورود و همگام‌سازی امن…</p>
-      <small class="portal-loading-version">نسخه 2.4.3</small>
+      <small class="portal-loading-version">نسخه 2.0.0</small>
     </div>
   </div>
 
@@ -4464,7 +4896,7 @@
         googleCalendar: { enabled: false, eventsByDate: {}, lastSync: null, error: "" },
         settings: {
           theme: "light", taskSort: "time", routineSort: "time", taskDensity: "comfortable", displayName: "", displayNameFa: "", displayNameEn: "", language: runtimeLanguage, adaptiveTheme: true, useWeather: true, useLocation: true,
-          autoTheme: true, animation: "subtle", snowEffects: "subtle", themeMode: "auto", manualTheme: "pinky", manualSeason: "spring", selectedCity: "تهران", autoLocate: true, allowIpFallback: true, liveAtmosphereV1: true,
+          autoTheme: true, animation: "subtle", snowEffects: "subtle", themeMode: "auto", themeOverride: "", manualTheme: "pinky", manualSeason: "spring", selectedCity: "تهران", autoLocate: true, allowIpFallback: true, liveAtmosphereV1: true,
           selectedLocation: { name: "تهران", latitude: 35.6892, longitude: 51.389, timezone: "Asia/Tehran", source: "default" },
           googleClientId: ""
         },
@@ -5016,6 +5448,7 @@
         next.settings.animation = ["full","subtle","off"].includes(raw.settings?.animation) ? raw.settings.animation : "subtle";
         next.settings.snowEffects = ["on","subtle","off"].includes(raw.settings?.snowEffects) ? raw.settings.snowEffects : "subtle";
         next.settings.themeMode = ["auto","light","dark","manual"].includes(raw.settings?.themeMode) ? raw.settings.themeMode : (raw.settings?.theme === "dark" ? "dark" : "auto");
+        next.settings.themeOverride = ["light","dark"].includes(raw.settings?.themeOverride) ? raw.settings.themeOverride : "";
         next.settings.manualTheme = THEME_LIBRARY[raw.settings?.manualTheme] ? raw.settings.manualTheme : "pinky";
         next.settings.manualSeason = MANUAL_THEME_SEASONS[raw.settings?.manualSeason] ? raw.settings.manualSeason : (THEME_TO_SEASON[next.settings.manualTheme] || "spring");
         next.settings.selectedCity = String(raw.settings?.selectedCity || raw.settings?.selectedLocation?.name || DEFAULT_LOCATION.name).slice(0,80);
@@ -6282,7 +6715,9 @@
         if(state.settings.themeMode==="manual") themeId=THEME_LIBRARY[state.settings.manualTheme]?state.settings.manualTheme:"pinky";
         let theme=THEME_LIBRARY[themeId]||THEME_LIBRARY.pinky;
         if(state.settings.themeMode==="light"||state.settings.themeMode==="dark") theme=forcedPalette(theme,state.settings.themeMode);
-        return {themeId,theme,context,mode:theme.mode};
+        const temporaryOverride=["light","dark"].includes(state.settings.themeOverride)?state.settings.themeOverride:"";
+        if(temporaryOverride) theme=forcedPalette(theme,temporaryOverride);
+        return {themeId,theme,context,mode:theme.mode,temporaryOverride};
       }
       function applyPalette(palette) {
         const root=document.documentElement; const map={bg:"--bg",bgSoft:"--bg-soft",surface:"--surface",surfaceSolid:"--surface-solid",surface2:"--surface-2",text:"--text",muted:"--muted",border:"--border",borderStrong:"--border-strong",accent:"--accent",accentStrong:"--accent-strong",accentSoft:"--accent-soft",accentFaint:"--accent-faint",plum:"--plum",ambientA:"--ambient-a",ambientB:"--ambient-b",ambientC:"--ambient-c",glow:"--atmosphere-glow"};
@@ -6308,6 +6743,11 @@
       function renderTheme() {
         const resolved=resolveTheme(); applyPalette(resolved.theme.palette); document.documentElement.dataset.theme=resolved.mode; document.documentElement.dataset.atmosphere=resolved.themeId;
         renderAmbientEffect(resolved.theme.effect); els.themeToggle.textContent=resolved.mode==="dark"?"☀":"☾"; els.themeToggle.setAttribute("aria-pressed",String(resolved.mode==="dark"));
+        const restoreSelectedTheme=Boolean(resolved.temporaryOverride);
+        const themeToggleLabel=uiLanguage()==="en"
+          ? (restoreSelectedTheme?"Restore selected theme":resolved.mode==="dark"?"Temporarily use light mode":"Temporarily use dark mode")
+          : (restoreSelectedTheme?"بازگشت به تم انتخاب‌شده":resolved.mode==="dark"?"نمایش موقت حالت روشن":"نمایش موقت حالت تیره");
+        els.themeToggle.setAttribute("aria-label",themeToggleLabel);els.themeToggle.title=themeToggleLabel;
         if(els.brandMark){
           const winter = resolved.themeId.startsWith("winter-");
           els.brandMark.dataset.atmosphere = winter ? "winter" : (resolved.themeId === "clear-night" ? "night" : "default");
@@ -6655,7 +7095,7 @@
         updateThemeSettingsHint();renderGoogleCalendarStatus();
       }
       function themePreviewSnapshot() {
-        return {adaptiveTheme:state.settings.adaptiveTheme,autoTheme:state.settings.autoTheme,themeMode:state.settings.themeMode,manualTheme:state.settings.manualTheme,manualSeason:state.settings.manualSeason,animation:state.settings.animation,snowEffects:state.settings.snowEffects,theme:state.settings.theme};
+        return {adaptiveTheme:state.settings.adaptiveTheme,autoTheme:state.settings.autoTheme,themeMode:state.settings.themeMode,themeOverride:state.settings.themeOverride,manualTheme:state.settings.manualTheme,manualSeason:state.settings.manualSeason,animation:state.settings.animation,snowEffects:state.settings.snowEffects,theme:state.settings.theme};
       }
       function updateThemeSettingsHint() {
         if(!els.themePreviewHint)return;
@@ -6669,6 +7109,7 @@
         state.settings.adaptiveTheme=els.adaptiveThemeToggle.checked;
         state.settings.autoTheme=els.autoThemeToggle.checked;
         state.settings.themeMode=els.themeModeSelect.value;
+        state.settings.themeOverride="";
         state.settings.manualSeason=MANUAL_THEME_SEASONS[els.themeSeasonSelect.value]?els.themeSeasonSelect.value:"spring";
         state.settings.manualTheme=THEME_LIBRARY[els.manualThemeSelect.value]?els.manualThemeSelect.value:MANUAL_THEME_SEASONS[state.settings.manualSeason].themes[0].id;
         state.settings.animation=els.animationSelect.value;
@@ -6709,7 +7150,7 @@
       }
       async function saveSettings(event) {
         event.preventDefault();const oldUseLocation=state.settings.useLocation;const mode=els.themeModeSelect.value;
-        state.settings.language=els.languageSelect?.value === "en" ? "en" : "fa";runtimeLanguage=state.settings.language;try{localStorage.setItem("pinky-day-language",runtimeLanguage);}catch{};state.settings.adaptiveTheme=els.adaptiveThemeToggle.checked;state.settings.useWeather=els.useWeatherToggle.checked;state.settings.useLocation=els.useLocationToggle.checked;state.settings.autoTheme=mode==="auto";state.settings.themeMode=mode;state.settings.manualSeason=MANUAL_THEME_SEASONS[els.themeSeasonSelect.value]?els.themeSeasonSelect.value:"spring";state.settings.manualTheme=THEME_LIBRARY[els.manualThemeSelect.value]?els.manualThemeSelect.value:MANUAL_THEME_SEASONS[state.settings.manualSeason].themes[0].id;state.settings.animation=els.animationSelect.value;state.settings.snowEffects=els.snowEffectsSelect?.value||"subtle";state.settings.googleClientId=els.googleClientIdInput.value.trim().slice(0,160);
+        state.settings.language=els.languageSelect?.value === "en" ? "en" : "fa";runtimeLanguage=state.settings.language;try{localStorage.setItem("pinky-day-language",runtimeLanguage);}catch{};state.settings.adaptiveTheme=els.adaptiveThemeToggle.checked;state.settings.useWeather=els.useWeatherToggle.checked;state.settings.useLocation=els.useLocationToggle.checked;state.settings.autoTheme=mode==="auto";state.settings.themeMode=mode;state.settings.themeOverride="";state.settings.manualSeason=MANUAL_THEME_SEASONS[els.themeSeasonSelect.value]?els.themeSeasonSelect.value:"spring";state.settings.manualTheme=THEME_LIBRARY[els.manualThemeSelect.value]?els.manualThemeSelect.value:MANUAL_THEME_SEASONS[state.settings.manualSeason].themes[0].id;state.settings.animation=els.animationSelect.value;state.settings.snowEffects=els.snowEffectsSelect?.value||"subtle";state.settings.googleClientId=els.googleClientIdInput.value.trim().slice(0,160);
         const resolvedMode=mode==="manual"?(THEME_LIBRARY[state.settings.manualTheme]?.mode||"light"):mode==="dark"?"dark":mode==="light"?"light":resolveTheme().mode;state.settings.theme=resolvedMode;
         saveState();settingsThemePreview=null;closeSettingsDialog(false);renderAll();if(state.settings.useLocation&&!oldUseLocation)await useCurrentLocation();else if(state.settings.useWeather)await refreshLiveAtmosphere({interactive:false,forceLocation:false,forceWeather:true});showToast("تم و تنظیمات با موفقیت ذخیره شد.");
       }
@@ -7437,7 +7878,7 @@
           els.pushEnableButton.disabled=true;els.pushEnableButton.textContent="در حال فعال‌سازی...";
           const permission=await Notification.requestPermission();
           if(permission!=="granted"){showToast("اجازه‌ی اعلان داده نشد.","اعلان گوشی");return;}
-          const registration=await navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.3"}`),{scope:window.PinkyAppUrl("./"),updateViaCache:"none"});
+          const registration=await navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.6"}`),{scope:window.PinkyAppUrl("./"),updateViaCache:"none"});
           await navigator.serviceWorker.ready;
           let subscription=await registration.pushManager.getSubscription();
           if(!subscription){subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});}
@@ -7488,7 +7929,13 @@
 
       function saveReflection(event){event.preventDefault();const today=localDateKey();state.reflections[today]={proud:els.reflectionProud.value.trim(),hard:els.reflectionHard.value.trim(),tomorrow:els.reflectionTomorrow.value.trim(),selfPride:els.reflectionSelfPride.value.trim(),updatedAt:nowIso()};saveState();renderReflection();showToast("مرور روزانه امروز ذخیره شد 🌙");}
 
-      function toggleTheme(){const current=resolveTheme().mode;state.settings.themeMode=current==="dark"?"light":"dark";state.settings.autoTheme=false;state.settings.theme=state.settings.themeMode;saveState();renderAll();}
+      function toggleTheme(){
+        const resolved=resolveTheme();
+        if(["light","dark"].includes(state.settings.themeOverride)) state.settings.themeOverride="";
+        else state.settings.themeOverride=resolved.mode==="dark"?"light":"dark";
+        state.settings.theme=resolveTheme().mode;
+        saveState();renderAll();
+      }
       function exportData(){const payload={app:"Pinky Daily Plan",schemaVersion:SCHEMA_VERSION,exportedAt:nowIso(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`pinky-day-backup-${localDateKey()}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);showToast("فایل پشتیبان دانلود شد.");}
       function importData(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=parsed.data||parsed;if(!incoming||typeof incoming!=="object")throw new Error("داده نامعتبر است");if(!confirm("با درون‌ریزی، داده‌های فعلی جایگزین می‌شوند. ادامه می‌دهی؟"))return;localStorage.setItem(BACKUP_KEY,JSON.stringify(state));state=migrate(incoming);saveState();cleanupCompletedDailyTasks();renderAll();showToast("داده‌ها با موفقیت درون‌ریزی شدند.");}catch(error){console.warn("درون‌ریزی ناموفق بود",error);showToast("فایل داده معتبر نیست یا ساختار آن پشتیبانی نمی‌شود.","خطای درون‌ریزی");}finally{els.importFile.value="";}};reader.readAsText(file,"utf-8");}
 
@@ -7767,7 +8214,7 @@
     })();
   </script>
 
-  <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.3"}`),{updateViaCache:"none"}).then(registration=>registration.update().catch(()=>{})).catch(error=>console.warn("Service worker registration failed",error)));}</script>
+  <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.6"}`),{updateViaCache:"none"}).then(registration=>registration.update().catch(()=>{})).catch(error=>console.warn("Service worker registration failed",error)));}</script>
 
   <script>
     (() => {
@@ -7778,8 +8225,9 @@
           state: "حال، انرژی و روز آزاد",
           routine: "افزودن یا ویرایش روتین",
           more: "سایر بخش‌های امروز",
-          moreHint: "برنامه زمانی و یادآوری‌ها",
+          moreHint: "یادآوری‌ها و اعلان‌های پیش‌رو",
           loading: "در حال ورود و همگام‌سازی امن…",
+          tagline: "همراه آرام برنامه‌ریزی و پیشرفت روزانه",
           version: "نسخه"
         },
         en: {
@@ -7787,8 +8235,9 @@
           state: "Mood, energy and free day",
           routine: "Add or edit a routine",
           more: "More for today",
-          moreHint: "Timeline and reminders",
+          moreHint: "Upcoming reminders and alerts",
           loading: "Signing in and syncing securely…",
+          tagline: "A gentle companion for daily planning and progress",
           version: "Version"
         }
       };
@@ -7853,15 +8302,26 @@
         if (!primary || !tasks || !routine || !timeline || !reminders) return;
         primary.classList.add("today-primary-stack");
         secondary?.classList.add("today-secondary-stack");
-        if (routine.parentNode !== primary) primary.insertBefore(routine, tasks.nextSibling);
+
+        // Keep the timeline visible and place it immediately before routines.
+        if (timeline.parentNode !== primary || timeline.previousElementSibling !== tasks) {
+          primary.insertBefore(timeline, tasks.nextSibling);
+        }
+        if (routine.parentNode !== primary || routine.previousElementSibling !== timeline) {
+          primary.insertBefore(routine, timeline.nextSibling);
+        }
+
         let details = document.getElementById("todayMoreDetails");
         if (!details) {
           const created = makeDetails("today-more-details", "today-more-summary", `<span><strong>${text("more")}</strong><small>${text("moreHint")}</small></span>`);
           details = created.details;
           details.id = "todayMoreDetails";
-          created.content.append(timeline, reminders);
+          created.content.append(reminders);
           details.appendChild(created.content);
           primary.appendChild(details);
+        } else {
+          const content = details.querySelector(".today-more-content");
+          if (content && reminders.parentNode !== content) content.appendChild(reminders);
         }
         if (secondary && !secondary.querySelector(".panel")) { secondary.hidden = true; secondary.classList.add("is-empty-today-stack"); }
       }
@@ -7882,22 +8342,23 @@
         if (state) state.textContent = text("state");
         if (routine) routine.textContent = text("routine");
         if (more) more.innerHTML = `<strong>${text("more")}</strong><small>${text("moreHint")}</small>`;
+        const loadingTagline = document.querySelector(".portal-loading-tagline");
         const loadingStatus = document.querySelector(".portal-loading-status");
         const loadingVersion = document.querySelector(".portal-loading-version");
+        if (loadingTagline) loadingTagline.textContent = text("tagline");
         if (loadingStatus) loadingStatus.textContent = text("loading");
-        if (loadingVersion) loadingVersion.textContent = `${text("version")} ${globalThis.PINKY_APP_VERSION || "2.4.3"}`;
+        if (loadingVersion) loadingVersion.textContent = `${text("version")} ${globalThis.PINKY_DISPLAY_VERSION || "2.0.0"}`;
       }
 
       function setup() {
         document.body.classList.add("calm-today-redesign");
-        setupWeatherDetails();
         setupTodayStateDetails();
         setupRoutineEditor();
         setupTodayFlow();
         updateLabels();
         document.addEventListener("click", event => {
           if (event.target.closest(".routine-edit")) openRoutineEditorSoon();
-          const shortcut = event.target.closest("[data-scroll-target='timelinePanel'],[data-scroll-target='remindersPanel']");
+          const shortcut = event.target.closest("[data-scroll-target='remindersPanel']");
           if (shortcut) {
             const details = document.getElementById("todayMoreDetails");
             if (details) details.open = true;
