@@ -636,7 +636,7 @@ h1 {
 }
 
 
-/* Desktop splash simplification — v2.4.3 */
+/* Desktop splash simplification — v2.4.6 */
 @media (min-width: 761px) {
   .auth-splash {
     grid-template-rows: 1fr auto;
@@ -653,7 +653,13 @@ h1 {
     margin-top: 18px;
     font-size: 1.75rem;
   }
-  .auth-splash .splash-tagline,
+  .auth-splash .splash-tagline {
+    display: block;
+    max-width: 420px;
+    margin-top: 8px;
+    font-size: .9rem;
+    line-height: 1.85;
+  }
   .auth-splash .splash-progress {
     display: none !important;
   }

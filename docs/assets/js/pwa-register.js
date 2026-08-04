@@ -2,7 +2,7 @@ import { appUrl } from "./supabase-client.js";
 
 if ("serviceWorker" in navigator) {
   addEventListener("load", () => {
-    const version = window.PINKY_APP_VERSION || "2.4.3";
+    const version = window.PINKY_APP_VERSION || "2.4.6";
     navigator.serviceWorker
       .register(appUrl(`sw.js?v=${encodeURIComponent(version)}`), { updateViaCache: "none" })
       .then(registration => registration.update().catch(() => {}))

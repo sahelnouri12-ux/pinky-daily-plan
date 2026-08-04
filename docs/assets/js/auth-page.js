@@ -50,7 +50,7 @@ const SPLASH_EXIT_MS = 380;
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 function updateAppVersion() {
-  const version = window.PINKY_APP_VERSION || window.PINKY_PORTAL_CONFIG?.portalVersion || "2.4.3";
+  const version = window.PINKY_DISPLAY_VERSION || "2.0.0";
   document.querySelectorAll("[data-app-version]").forEach(node => {
     node.textContent = version;
   });

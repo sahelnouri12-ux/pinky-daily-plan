@@ -171,6 +171,6 @@ body.portal-booting > .app-shell, body.portal-booting > .ambient-layer, body.por
 }
 
 
-/* Account controls moved from the page-top strip into Settings — v2.4.3 */
+/* Account controls moved from the page-top strip into Settings — v2.4.6 */
 .portal-account-settings .portal-sync-group { display:flex; align-items:center; gap:8px; min-width:0; }
 .portal-account-settings .portal-user-email { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

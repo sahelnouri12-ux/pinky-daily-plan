@@ -35,7 +35,7 @@ export async function getSupabaseClient() {
       autoRefreshToken: true,
       detectSessionInUrl: true
     },
-    global: { headers: { "X-Client-Info": `pinky-auth-portal/${window.PINKY_APP_VERSION || "2.4.3"}` } }
+    global: { headers: { "X-Client-Info": `pinky-auth-portal/${window.PINKY_APP_VERSION || "2.4.6"}` } }
   });
   const { data } = client.auth.onAuthStateChange((event, session) => {
     for (const listener of listeners) {
