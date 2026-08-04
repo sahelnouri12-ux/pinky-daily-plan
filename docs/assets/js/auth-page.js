@@ -40,6 +40,72 @@ const query = new URLSearchParams(location.search);
 let activeSubmission = false;
 let currentSession = null;
 let currentUser = null;
+let redirectStarted = false;
+let loginInitialized = false;
+
+const MIN_SPLASH_MS = 800;
+const MAX_BOOT_MS = 6800;
+const SPLASH_EXIT_MS = 380;
+
+const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+function updateAppVersion() {
+  const version = window.PINKY_APP_VERSION || window.PINKY_PORTAL_CONFIG?.portalVersion || "1.8.0";
+  document.querySelectorAll("[data-app-version]").forEach(node => {
+    node.textContent = version;
+  });
+}
+
+function setSplashStatus(key) {
+  const region = document.getElementById("splashStatus");
+  if (region) region.textContent = t(key);
+}
+
+function authIntentTarget() {
+  if (page !== "login") return "";
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const type = String(query.get("type") || hash.get("type") || "").toLowerCase();
+  if (type === "recovery") return "reset-password.html";
+  if (["signup", "email", "email_change"].includes(type)) return "verify-email.html";
+  return "";
+}
+
+function navigateOnce(target) {
+  if (redirectStarted) return false;
+  redirectStarted = true;
+  document.body.classList.remove("auth-ready", "auth-error");
+  document.body.classList.add("auth-redirecting");
+  location.replace(target);
+  return true;
+}
+
+function redirectPreservingAuthUrl(targetPath) {
+  const target = new URL(appUrl(targetPath));
+  target.search = location.search;
+  target.hash = location.hash;
+  return navigateOnce(target.href);
+}
+
+function revealAuthShell() {
+  const shell = document.getElementById("authShell");
+  shell?.removeAttribute("inert");
+  shell?.removeAttribute("aria-hidden");
+  document.body.classList.remove("auth-booting", "auth-redirecting");
+  document.body.classList.add("auth-ready");
+}
+
+async function hideSplashScreen({ focus = true } = {}) {
+  const splash = document.getElementById("authSplash");
+  revealAuthShell();
+  if (!splash) return;
+  splash.classList.add("is-leaving");
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  await delay(reducedMotion ? 1 : SPLASH_EXIT_MS);
+  splash.hidden = true;
+  splash.setAttribute("aria-hidden", "true");
+  splash.style.pointerEvents = "none";
+  if (focus) document.getElementById("loginEmail")?.focus({ preventScroll: true });
+}
 
 function emailValid(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -103,7 +169,9 @@ function setupPasswordRules() {
 async function redirectAuthenticated(session) {
   if (!session || !["landing", "login", "signup", "forgot"].includes(page)) return false;
   setStatus(t("alreadySignedIn"), "success");
-  setTimeout(() => location.replace(appUrl("app.html")), 150);
+  if (page === "login") setSplashStatus("splashRedirecting");
+  const target = page === "login" ? safeNextPath(query.get("next")) : appUrl("app.html");
+  navigateOnce(target);
   return true;
 }
 
@@ -111,10 +179,11 @@ function bindAuthEvents() {
   return subscribeAuth((event, session) => {
     currentSession = session;
     currentUser = session?.user || null;
-    if (event === "SIGNED_OUT" && page === "account") location.replace(appUrl("login.html"));
+    if (event === "SIGNED_OUT" && page === "account") navigateOnce(appUrl("login.html"));
     if (event === "PASSWORD_RECOVERY" && page === "reset") showResetForm();
     if (event === "SIGNED_IN" && ["login", "signup"].includes(page)) {
-      location.replace(safeNextPath(query.get("next")));
+      if (page === "login") setSplashStatus("splashRedirecting");
+      navigateOnce(safeNextPath(query.get("next")));
     }
   });
 }
@@ -132,7 +201,10 @@ async function initLanding() {
 }
 
 function initLogin() {
+  if (loginInitialized) return;
   const form = document.getElementById("loginForm");
+  if (!form) return;
+  loginInitialized = true;
   form.addEventListener("submit", event => {
     event.preventDefault();
     clearFieldErrors(form);
@@ -145,7 +217,7 @@ function initLogin() {
       try {
         await signIn(email.value.trim(), password.value);
         setStatus(t("loginSuccess"), "success");
-        location.replace(safeNextPath(query.get("next")));
+        navigateOnce(safeNextPath(query.get("next")));
       } catch (error) {
         setStatus(friendlyError(error, "login"), "error", true);
       }
@@ -177,7 +249,7 @@ function initSignup() {
           displayName: name.value.trim()
         });
         if (data.session) {
-          location.replace(appUrl("app.html"));
+          navigateOnce(appUrl("app.html"));
           return;
         }
         const verifyUrl = new URL(appUrl("verify-email.html"));
@@ -226,13 +298,19 @@ function showInvalidRecovery() {
 async function initReset() {
   const form = document.getElementById("resetForm");
   const waitForRecovery = new Promise(resolve => {
+    let settled = false;
+    let timer = 0;
+    const finish = session => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      stop();
+      resolve(session);
+    };
     const stop = subscribeAuth((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
-        stop();
-        resolve(session);
-      }
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) finish(session);
     });
-    setTimeout(() => { stop(); resolve(null); }, 5000);
+    timer = setTimeout(() => finish(null), 5000);
   });
   const session = await getSession().catch(() => null);
   if (session) showResetForm();
@@ -330,7 +408,7 @@ async function initAccount() {
     event.currentTarget.disabled = true;
     try {
       await signOut();
-      location.replace(appUrl("login.html"));
+      navigateOnce(appUrl("login.html"));
     } catch {
       event.currentTarget.disabled = false;
       setStatus(t("logoutFailed"), "error", true);
@@ -377,29 +455,66 @@ async function boot() {
   bindLanguageToggle();
   bindPasswordToggles();
   setupNetworkStatus();
+  updateAppVersion();
   document.getElementById("retryButton")?.addEventListener("click", () => location.reload());
 
   const unsubscribe = bindAuthEvents();
   addEventListener("pagehide", unsubscribe, { once: true });
 
+  const minimumSplash = page === "login" ? delay(MIN_SPLASH_MS) : Promise.resolve();
+  const intentTarget = authIntentTarget();
+  if (intentTarget) {
+    setSplashStatus(intentTarget.startsWith("reset") ? "splashChecking" : "splashRedirecting");
+    await minimumSplash;
+    redirectPreservingAuthUrl(intentTarget);
+    return;
+  }
+
   try {
-    await withTimeout(getSupabaseClient(), 9000, "auth-boot-timeout");
-    currentSession = await getSession().catch(() => null);
-    currentUser = currentSession?.user || null;
-    if (await redirectAuthenticated(currentSession)) return;
+    if (page === "login") setSplashStatus("splashChecking");
+    await withTimeout((async () => {
+      await getSupabaseClient();
+      currentSession = await getSession();
+      currentUser = currentSession?.user || null;
+    })(), MAX_BOOT_MS, "auth-boot-timeout");
+
+    if (currentSession && ["landing", "login", "signup", "forgot"].includes(page)) {
+      await minimumSplash;
+      await redirectAuthenticated(currentSession);
+      return;
+    }
 
     if (page === "landing") await initLanding();
-    else if (page === "login") initLogin();
-    else if (page === "signup") initSignup();
+    else if (page === "login") {
+      initLogin();
+      setSplashStatus("splashReady");
+      await minimumSplash;
+      await hideSplashScreen();
+    } else if (page === "signup") initSignup();
     else if (page === "forgot") initForgot();
     else if (page === "reset") await initReset();
     else if (page === "verify") await initVerify();
     else if (page === "account") await initAccount();
   } catch (error) {
-    console.error("Pinky auth portal boot failed", error);
+    console.error("Pinky auth portal boot failed", {
+      name: String(error?.name || "Error"),
+      code: String(error?.code || error?.message || "auth-boot-failed")
+    });
     document.getElementById("authFallback")?.removeAttribute("hidden");
     setStatus(friendlyError(error, "boot"), "error", true);
+    if (page === "login") {
+      initLogin();
+      document.body.classList.add("auth-error");
+      await minimumSplash;
+      await hideSplashScreen({ focus: false });
+      document.body.classList.add("auth-error");
+      document.getElementById("retryButton")?.focus({ preventScroll: true });
+    }
   }
 }
 
-boot();
+boot().catch(error => {
+  console.error("Pinky auth portal initialization failed", String(error?.message || "initialization-failed"));
+  revealAuthShell();
+  document.getElementById("authFallback")?.removeAttribute("hidden");
+});

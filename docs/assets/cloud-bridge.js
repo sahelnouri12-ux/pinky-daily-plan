@@ -143,7 +143,7 @@
     const expectedRevision = force ? null : (currentRevision || null);
     const { data, error } = await client.rpc("save_pinky_state", {
       p_data: state,
-      p_schema_version: Number(state.schemaVersion) || 15,
+      p_schema_version: Number(state.schemaVersion) || 16,
       p_device_id: deviceId,
       p_expected_revision: expectedRevision
     });

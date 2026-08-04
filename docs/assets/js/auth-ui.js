@@ -6,6 +6,12 @@ const dictionary = {
     pageSettings: "تنظیمات صفحه",
     themeToggle: "تغییر حالت روشن و تیره",
     privacy: "حریم خصوصی",
+    brandTagline: "همراه آرام برنامه‌ریزی و پیشرفت روزانه",
+    splashPreparing: "در حال آماده‌سازی برنامه…",
+    splashChecking: "در حال بررسی حساب…",
+    splashRedirecting: "در حال انتقال به برنامه…",
+    splashReady: "آماده ورود",
+    versionLabel: "نسخه",
     landingEyebrow: "برنامه‌ریز شخصی و آرام",
     landingTitle: "روزت را ساده‌تر و منظم‌تر پیش ببر",
     landingLead: "کارها، روتین‌ها و یادآوری‌هایت را در حساب شخصی نگه دار و بین دستگاه‌ها همگام کن.",
@@ -36,8 +42,8 @@ const dictionary = {
     asidePointOne: "ذخیره اطلاعات در حساب شخصی",
     asidePointTwo: "هماهنگی با نسخه موبایل و لپ‌تاپ",
     asidePointThree: "فعال‌سازی اختیاری اعلان‌ها",
-    loginTitle: "خوش آمدی",
-    loginSubtitle: "برای دیدن برنامه و داده‌های همگام‌شده وارد حساب شو.",
+    loginTitle: "ورود به Pinky Daily Plan",
+    loginSubtitle: "برای دسترسی به برنامه‌ها و همگام‌سازی اطلاعاتت وارد حساب شو.",
     signupTitle: "ساخت حساب",
     signupSubtitle: "پس از ثبت‌نام، ممکن است لازم باشد ایمیل خود را تأیید کنی.",
     forgotTitle: "بازیابی رمز عبور",
@@ -84,6 +90,14 @@ const dictionary = {
     cancel: "انصراف",
     deletePermanently: "حذف برای همیشه",
     loadFailed: "بارگذاری سرویس ورود کامل نشد.",
+    invalidCredentials: "ایمیل یا رمز عبور درست نیست.",
+    emailNotConfirmed: "پیش از ورود، ایمیل خود را تأیید کن.",
+    tooManyRequests: "درخواست‌ها بیش از حد مجاز بوده‌اند؛ کمی بعد دوباره تلاش کن.",
+    weakPassword: "یک رمز عبور قوی‌تر انتخاب کن.",
+    serviceUnavailable: "سرویس در دسترس نیست؛ اتصال اینترنت را بررسی و دوباره تلاش کن.",
+    signupFailed: "ساخت حساب کامل نشد.",
+    resetFailed: "تغییر رمز عبور انجام نشد.",
+    requestFailed: "انجام درخواست ممکن نشد.",
     tryAgain: "تلاش دوباره",
     required: "این فیلد الزامی است.",
     invalidEmail: "یک ایمیل معتبر وارد کن.",
@@ -116,6 +130,12 @@ const dictionary = {
     pageSettings: "Page settings",
     themeToggle: "Toggle light and dark mode",
     privacy: "Privacy",
+    brandTagline: "A gentle companion for daily planning and progress",
+    splashPreparing: "Preparing the app…",
+    splashChecking: "Checking your account…",
+    splashRedirecting: "Opening your planner…",
+    splashReady: "Ready to sign in",
+    versionLabel: "Version",
     landingEyebrow: "A calm personal planner",
     landingTitle: "Make each day simpler and more organized",
     landingLead: "Keep tasks, routines, and reminders in your personal account and sync them across devices.",
@@ -146,8 +166,8 @@ const dictionary = {
     asidePointOne: "Data stored in your personal account",
     asidePointTwo: "Works across phone and laptop",
     asidePointThree: "Optional notification activation",
-    loginTitle: "Welcome back",
-    loginSubtitle: "Sign in to open your planner and synced data.",
+    loginTitle: "Sign in to Pinky Daily Plan",
+    loginSubtitle: "Sign in to access your plans and sync your information.",
     signupTitle: "Create an account",
     signupSubtitle: "After registration, you may need to confirm your email.",
     forgotTitle: "Reset your password",
@@ -194,6 +214,14 @@ const dictionary = {
     cancel: "Cancel",
     deletePermanently: "Delete permanently",
     loadFailed: "The sign-in service did not finish loading.",
+    invalidCredentials: "Email or password is incorrect.",
+    emailNotConfirmed: "Confirm your email before signing in.",
+    tooManyRequests: "Too many requests. Please wait and try again.",
+    weakPassword: "Choose a stronger password.",
+    serviceUnavailable: "The service is unavailable. Check your connection and try again.",
+    signupFailed: "Account creation could not be completed.",
+    resetFailed: "The password could not be updated.",
+    requestFailed: "The request could not be completed.",
     tryAgain: "Try again",
     required: "This field is required.",
     invalidEmail: "Enter a valid email address.",
@@ -229,6 +257,7 @@ export function t(key) {
 }
 
 export function applyLanguage(lang) {
+  const previous = currentLanguage();
   const selected = lang === "en" ? "en" : "fa";
   document.documentElement.lang = selected;
   document.documentElement.dir = selected === "en" ? "ltr" : "rtl";
@@ -239,6 +268,12 @@ export function applyLanguage(lang) {
   document.querySelectorAll("[data-i18n-aria]").forEach(node => {
     const value = dictionary[selected][node.dataset.i18nAria];
     if (value) node.setAttribute("aria-label", value);
+  });
+  document.querySelectorAll(".page-status, .field-error").forEach(node => {
+    const currentText = node.textContent.trim();
+    if (!currentText) return;
+    const messageKey = Object.keys(dictionary[previous]).find(key => dictionary[previous][key] === currentText);
+    if (messageKey && dictionary[selected][messageKey]) node.textContent = dictionary[selected][messageKey];
   });
   const languageButton = document.getElementById("languageToggle");
   if (languageButton) {
@@ -288,9 +323,17 @@ export function setStatus(message = "", type = "info", alert = false) {
 export function setBusy(form, busy, labelKey) {
   if (!form) return;
   form.setAttribute("aria-busy", String(busy));
+  form.querySelectorAll("input, select, textarea, button").forEach(control => {
+    if (busy) {
+      control.dataset.authWasDisabled = String(control.disabled);
+      control.disabled = true;
+    } else {
+      control.disabled = control.dataset.authWasDisabled === "true";
+      delete control.dataset.authWasDisabled;
+    }
+  });
   const button = form.querySelector('button[type="submit"]');
   if (button) {
-    button.disabled = busy;
     const label = button.querySelector("[data-submit-label]");
     if (label && labelKey) label.textContent = t(labelKey);
   }
