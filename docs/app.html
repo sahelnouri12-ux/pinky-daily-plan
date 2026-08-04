@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#f85d9b" />
+  <meta name="theme-color" content="#a94b73" />
   <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="./favicon.ico?v=6" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=6">
@@ -15,7 +15,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#d93678">
+  
   <style>
     :root {
       --bg: #fff7fb;
@@ -633,12 +633,67 @@
     .goal-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
     .add-milestone-form { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; gap: 7px; }
 
+
+    /* Goal checklists, routine reminders, and gentle free days — v2.4.3 */
+    .subtask-check {
+      width: 42px; height: 42px; min-width: 42px; min-height: 42px; border-radius: 13px;
+      cursor: pointer; touch-action: manipulation; transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+    .subtask-check:hover { transform: translateY(-1px); border-color: var(--accent); background: var(--accent-faint); }
+    .subtask-check:focus-visible, .task-subtask-title:focus-visible, .goal-subtask-title:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 38%, transparent); outline-offset: 3px;
+    }
+    .task-subtask-row { min-height: 52px; padding: 5px 7px; }
+    .task-subtask-title, .goal-subtask-title {
+      min-width: 0; width: 100%; padding: 8px 4px; border: 0; color: var(--text); background: transparent;
+      text-align: start; overflow-wrap: anywhere; font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer;
+    }
+    .task-subtask-row.done .task-subtask-title, .goal-subtask-row.done .goal-subtask-title { color: var(--muted); text-decoration: line-through; }
+    .milestone { align-items: start; }
+    .milestone-main { min-width: 0; display: grid; gap: 7px; }
+    .milestone-title-button { width: 100%; min-height: 34px; padding: 5px 2px; border: 0; color: var(--text); background: transparent; text-align: start; font: inherit; cursor: pointer; }
+    .milestone-title-button:focus-visible { outline: 3px solid color-mix(in srgb,var(--accent) 35%,transparent); outline-offset: 2px; border-radius: 8px; }
+    .goal-subtasks { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--border); border-radius: 13px; background: var(--accent-faint); }
+    .goal-subtask-progress { color: var(--muted); font-size: .66rem; font-weight: 850; }
+    .goal-subtask-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 6px; min-height: 50px; padding: 4px 6px; border-radius: 11px; background: color-mix(in srgb,var(--surface-solid) 72%,transparent); }
+    .goal-subtask-actions { display: flex; gap: 3px; }
+    .goal-subtask-add { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px; }
+    .goal-subtask-add .input { min-height: 38px; padding: 7px 9px; font-size: .73rem; }
+    .goal-subtask-add .soft-btn { min-height: 38px; padding: 6px 10px; font-size: .7rem; white-space: nowrap; }
+    .routine-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .routine-toolbar label { color: var(--muted); font-size: .69rem; font-weight: 850; }
+    .routine-sort-select { min-height: 38px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 12px; color: var(--text); background: var(--surface-2); font-size: .72rem; }
+    .routine-time-group { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; color: var(--accent-strong); font-size: .7rem; font-weight: 950; }
+    .routine-time-group::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+    .routine-reminder-option { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 14px; background: var(--accent-faint); cursor: pointer; }
+    .routine-reminder-option input { width: 20px; height: 20px; accent-color: var(--accent); }
+    .routine-reminder-option span { font-size: .73rem; font-weight: 850; }
+    .routine-reminder-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border-radius: 999px; color: var(--accent-strong); background: var(--accent-soft); font-weight: 900; }
+    .free-day-card { display: grid; gap: 9px; margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 18px; background: var(--accent-faint); }
+    .free-day-card.is-active { border-color: color-mix(in srgb,var(--accent) 38%,var(--border)); background: linear-gradient(145deg,var(--accent-faint),color-mix(in srgb,var(--accent-soft) 45%,var(--surface-solid))); }
+    .free-day-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .free-day-copy { min-width: 0; }
+    .free-day-copy strong { display: block; font-size: .78rem; }
+    .free-day-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: .66rem; line-height: 1.65; }
+    .free-day-toggle { min-height: 40px; padding: 8px 11px; border: 1px solid var(--border-strong); border-radius: 13px; color: var(--accent-strong); background: var(--surface-solid); font-size: .71rem; font-weight: 950; white-space: nowrap; }
+    .free-day-toggle[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(145deg,var(--accent),var(--accent-strong)); }
+    .free-day-transfer { width: 100%; min-height: 40px; }
+    .free-day-card[hidden] { display: none !important; }
+    @media (max-width: 520px) {
+      .goal-subtask-add { grid-template-columns: 1fr; }
+      .goal-subtask-add .soft-btn { width: 100%; }
+      .free-day-head { align-items: stretch; flex-direction: column; }
+      .free-day-toggle { width: 100%; }
+    }
+
     .report-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
     .report-select { min-height: 40px; padding: 8px 11px; border: 1px solid var(--border); border-radius: 13px; color: var(--text); background: var(--surface-2); font-size: .76rem; font-weight: 800; }
     .report-pdf-btn { min-height: 40px; padding: 8px 13px; border: 1px solid transparent; border-radius: 13px; color: #fff; background: linear-gradient(145deg, var(--accent), var(--accent-strong)); font-weight: 900; box-shadow: 0 9px 22px rgba(248,93,155,.2); }
     .report-pdf-btn[aria-busy="true"] { opacity: .72; cursor: wait; }
     .performance-card .rate-caption { display: block; margin-top: 4px; color: var(--muted); font-size: .64rem; }
     .performance-card.no-plan .performance-rate { color: var(--muted); }
+    .performance-card.free-day-performance { border-color: color-mix(in srgb,var(--accent) 38%,var(--border)); background: var(--accent-faint); }
+    .performance-card.free-day-performance .performance-rate { font-size: 1.12rem; }
     .report-footnote { margin: 10px 0 0; color: var(--muted); font-size: .68rem; line-height: 1.8; }
     .performance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
     .performance-card { padding: 13px; border: 1px solid var(--border); border-radius: 17px; background: var(--surface-2); }
@@ -2619,23 +2674,753 @@
 
 
 
-    /* Slightly smaller typography and plan-first hierarchy — v2.1.1 */
+    /* Slightly smaller typography and plan-first hierarchy — v2.4.3 */
     html { font-size: 15.5px; }
     @media (max-width: 760px) {
       input, select, textarea { font-size: 16px; }
     }
 
+
+
+    /* Calm Today redesign — v2.4.3 (based on v2.2.0) */
+    :root {
+      --calm-page: color-mix(in srgb, var(--bg) 82%, #fff);
+      --calm-surface: color-mix(in srgb, var(--surface-solid) 97%, transparent);
+      --calm-line: color-mix(in srgb, var(--border) 74%, transparent);
+      --calm-shadow: 0 8px 24px color-mix(in srgb, var(--plum) 7%, transparent);
+      --calm-shadow-sm: 0 3px 12px color-mix(in srgb, var(--plum) 6%, transparent);
+    }
+    body.calm-today-redesign {
+      background: linear-gradient(180deg, var(--calm-page), var(--bg-soft) 46%, var(--calm-page));
+    }
+    body.calm-today-redesign::before,
+    body.calm-today-redesign::after { display: none !important; }
+    body.calm-today-redesign .ambient-layer { opacity: .28; }
+    body.calm-today-redesign .topbar,
+    body.calm-today-redesign .primary-navigation,
+    body.calm-today-redesign .portal-session-bar {
+      box-shadow: var(--calm-shadow-sm) !important;
+      border-color: var(--calm-line) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #sectionShortcuts { display: none !important; }
+    body.calm-today-redesign[data-active-product-view="today"] #activeViewTitle { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+    body.calm-today-redesign[data-active-product-view="today"] #mainContent { width: min(100%, 1020px); margin-inline: auto; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero {
+      grid-template-columns: minmax(0, 1.18fr) minmax(280px, .82fr);
+      gap: 16px;
+      margin-bottom: 22px;
+      overflow: visible;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-main,
+    body.calm-today-redesign[data-active-product-view="today"] .hero-progress,
+    body.calm-today-redesign[data-active-product-view="today"] .panel {
+      background: var(--calm-surface) !important;
+      border-color: var(--calm-line) !important;
+      box-shadow: var(--calm-shadow) !important;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-main {
+      min-height: 0;
+      padding: 24px;
+      border-radius: 24px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-main::after { display: none; }
+    body.calm-today-redesign[data-active-product-view="today"] .greeting-line { gap: 8px; }
+    body.calm-today-redesign[data-active-product-view="today"] .eyebrow {
+      padding: 5px 9px;
+      color: var(--accent-strong);
+      background: color-mix(in srgb, var(--accent-soft) 64%, #fff);
+      font-size: .72rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .today-date { font-size: .78rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-main h2 {
+      margin: 13px 0 5px;
+      font-size: clamp(1.65rem, 4vw, 2.45rem);
+      letter-spacing: -.035em;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-weather {
+      margin-top: 17px;
+      padding-top: 15px;
+      border-top-color: var(--calm-line);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-identity { gap: 10px; }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      font-size: 1.35rem;
+      box-shadow: none !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-copy h3 { font-size: .92rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-copy p { margin-top: 3px; font-size: .73rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-actions { gap: 4px; }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-actions .icon-btn {
+      width: 36px;
+      min-height: 36px;
+      border-radius: 11px;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .weather-details,
+    .today-state-details,
+    .routine-editor-details,
+    .today-more-details {
+      border: 1px solid var(--calm-line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-2) 72%, #fff);
+      overflow: clip;
+    }
+    .weather-details { margin-top: 10px; }
+    .weather-details > summary,
+    .today-state-details > summary,
+    .routine-editor-details > summary,
+    .today-more-details > summary {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 13px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 850;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .weather-details > summary::-webkit-details-marker,
+    .today-state-details > summary::-webkit-details-marker,
+    .routine-editor-details > summary::-webkit-details-marker,
+    .today-more-details > summary::-webkit-details-marker { display: none; }
+    .weather-details > summary::after,
+    .today-state-details > summary::after,
+    .routine-editor-details > summary::after,
+    .today-more-details > summary::after {
+      content: "⌄";
+      color: var(--accent-strong);
+      font-size: 1rem;
+      transition: transform .18s ease;
+    }
+    .weather-details[open] > summary::after,
+    .today-state-details[open] > summary::after,
+    .routine-editor-details[open] > summary::after,
+    .today-more-details[open] > summary::after { transform: rotate(180deg); }
+    .weather-content,
+    .today-state-content,
+    .routine-editor-content,
+    .today-more-content {
+      padding: 0 13px 13px;
+      border-top: 1px solid var(--calm-line);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-status-row { margin-top: 12px; }
+    body.calm-today-redesign[data-active-product-view="today"] .weather-metrics { margin-top: 10px; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-progress {
+      padding: 18px;
+      gap: 12px;
+      border-radius: 24px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .progress-top {
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 12px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .ring { width: 92px; }
+    body.calm-today-redesign[data-active-product-view="today"] .ring::before { inset: 9px; }
+    body.calm-today-redesign[data-active-product-view="today"] .ring-value { font-size: 1.3rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-metrics { gap: 7px; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-metric {
+      padding: 9px 10px;
+      border-color: var(--calm-line);
+      background: #fff;
+      box-shadow: none !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-metric strong { font-size: .94rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .hero-metric span { font-size: .66rem; }
+    body.calm-today-redesign[data-active-product-view="today"] .points-progress {
+      padding: 10px 11px;
+      background: color-mix(in srgb, var(--accent-faint) 66%, #fff);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .points-row { font-size: .72rem; }
+    .today-state-details { background: transparent; }
+    .today-state-content { display: grid; gap: 10px; padding-top: 12px; }
+    body.calm-today-redesign[data-active-product-view="today"] .energy-section,
+    body.calm-today-redesign[data-active-product-view="today"] .free-day-card {
+      margin: 0;
+      padding: 11px;
+      border-radius: 14px;
+      border-color: var(--calm-line);
+      background: #fff;
+      box-shadow: none !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .energy-tip { margin-top: 7px; }
+
+    body.calm-today-redesign[data-active-product-view="today"] .dashboard-grid {
+      display: block;
+      max-width: 100%;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .today-primary-stack {
+      display: grid;
+      gap: 22px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .today-secondary-stack[hidden],
+    body.calm-today-redesign[data-active-product-view="today"] .today-secondary-stack.is-empty-today-stack { display: none !important; }
+    body.calm-today-redesign[data-active-product-view="today"] .panel {
+      padding: 24px;
+      border-radius: 24px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .panel-header {
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 13px;
+      border-bottom-color: var(--calm-line);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .panel-title h3 {
+      color: var(--text);
+      font-size: 1.02rem;
+      letter-spacing: -.015em;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .panel-title h3::before {
+      width: 3px;
+      height: .95em;
+      background: var(--accent);
+      opacity: .72;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .panel-title p {
+      max-width: 680px;
+      margin-top: 5px;
+      font-size: .72rem;
+      line-height: 1.75;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .counter {
+      padding: 5px 9px;
+      color: var(--muted);
+      background: var(--surface-2);
+      font-size: .68rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .quick-form {
+      grid-template-columns: minmax(0,1fr) minmax(150px,.38fr) auto;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px;
+      border: 1px solid var(--calm-line);
+      border-radius: 17px;
+      background: color-mix(in srgb, var(--surface-2) 70%, #fff);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .quick-form .input,
+    body.calm-today-redesign[data-active-product-view="today"] .quick-form .select {
+      background: #fff;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .task-toolbar {
+      align-items: stretch;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 8px;
+      border: 1px solid var(--calm-line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-2) 66%, #fff);
+      box-shadow: none;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .filters {
+      flex: 1 1 420px;
+      flex-wrap: nowrap;
+      gap: 5px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      padding: 1px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .filter-btn {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 11px;
+      background: #fff;
+      font-size: .7rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .filter-btn.active {
+      background: var(--accent-strong);
+      box-shadow: none;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .task-toolbar-actions {
+      flex: 0 0 auto;
+      gap: 6px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .task-density-btn,
+    body.calm-today-redesign[data-active-product-view="today"] .sort-select {
+      min-height: 34px;
+      background: #fff;
+      border-radius: 11px;
+      font-size: .7rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .task-list,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-list,
+    body.calm-today-redesign[data-active-product-view="today"] .reminder-list,
+    body.calm-today-redesign[data-active-product-view="today"] .timeline { gap: 12px; }
+    body.calm-today-redesign[data-active-product-view="today"] .task-item,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item,
+    body.calm-today-redesign[data-active-product-view="today"] .reminder-item,
+    body.calm-today-redesign[data-active-product-view="today"] .timeline-card {
+      padding: 15px;
+      border-color: var(--calm-line) !important;
+      border-radius: 18px;
+      background: #fff !important;
+      box-shadow: var(--calm-shadow-sm) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .task-item:hover,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item:hover,
+    body.calm-today-redesign[data-active-product-view="today"] .reminder-item:hover,
+    body.calm-today-redesign[data-active-product-view="today"] .timeline-card:hover {
+      transform: none !important;
+      box-shadow: 0 5px 16px color-mix(in srgb, var(--plum) 8%, transparent) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .daily-note,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-note { color: var(--muted); font-size: .68rem; }
+
+    .routine-editor-details { margin: 14px 0; }
+    .routine-editor-content { padding-top: 13px; }
+    .routine-editor-content .routine-form { margin: 0; }
+    .today-more-details { margin-top: 0; background: var(--calm-surface); box-shadow: var(--calm-shadow); }
+    .today-more-details > summary {
+      min-height: 58px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-size: .88rem;
+    }
+    .today-more-details > summary span { display: grid; gap: 3px; }
+    .today-more-details > summary small { color: var(--muted); font-size: .66rem; font-weight: 600; }
+    .today-more-content { display: grid; gap: 18px; padding: 18px; }
+    .today-more-content > .panel { padding: 18px !important; box-shadow: none !important; }
+    .today-more-content > .panel .panel-header { margin-bottom: 14px; }
+
+    .portal-loading-screen.calm-brand-loading {
+      background:
+        radial-gradient(circle at 16% 12%, rgba(255, 202, 222, .55), transparent 34%),
+        linear-gradient(145deg, #fff9fc, #fff1f6 58%, #fff8fb);
+    }
+    .portal-loading-screen.calm-brand-loading .portal-loading-card {
+      min-width: 0;
+      width: min(360px, calc(100% - 34px));
+      padding: 32px 24px;
+      border-color: rgba(220,75,133,.14);
+      border-radius: 28px;
+      box-shadow: 0 18px 55px rgba(156,50,98,.11);
+    }
+    .portal-loading-logo { width: 92px; height: 92px; display: block; margin: 0 auto 15px; border-radius: 25px; }
+    .portal-loading-title { display: block; color: var(--text); font-size: 1.16rem; }
+    .portal-loading-tagline { margin: 6px 0 16px; color: var(--muted); font-size: .74rem; line-height: 1.8; }
+    .portal-loading-dots { display: flex; justify-content: center; gap: 7px; margin: 4px 0 12px; }
+    .portal-loading-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: calmLoadingDot 1.15s ease-in-out infinite; }
+    .portal-loading-dots i:nth-child(2) { animation-delay: 160ms; }
+    .portal-loading-dots i:nth-child(3) { animation-delay: 320ms; }
+    .portal-loading-status { margin: 0; color: var(--muted); font-size: .7rem; }
+    .portal-loading-version { display: block; margin-top: 13px; color: color-mix(in srgb, var(--muted) 72%, transparent); font-size: .62rem; }
+    @keyframes calmLoadingDot { 50% { opacity: .35; transform: translateY(-2px) scale(.92); } }
+
+    @media (max-width: 1050px) {
+      body.calm-today-redesign[data-active-product-view="today"] .hero { grid-template-columns: 1fr; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero-progress {
+        display: grid;
+        grid-template-columns: minmax(0, .85fr) minmax(0, .72fr) minmax(260px, 1fr);
+        align-items: start;
+      }
+    }
+    @media (max-width: 760px) {
+      body.calm-today-redesign .app-shell { width: min(100% - 16px, 1240px); padding-top: 8px; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero { gap: 12px; margin-bottom: 16px; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero-main,
+      body.calm-today-redesign[data-active-product-view="today"] .hero-progress,
+      body.calm-today-redesign[data-active-product-view="today"] .panel { border-radius: 20px; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero-main { padding: 18px 16px; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero-progress { display: grid; grid-template-columns: 1fr; padding: 15px; }
+      body.calm-today-redesign[data-active-product-view="today"] .panel { padding: 18px 15px; }
+      body.calm-today-redesign[data-active-product-view="today"] .today-primary-stack { gap: 16px; }
+      body.calm-today-redesign[data-active-product-view="today"] .panel-header { align-items: flex-start; margin-bottom: 15px; }
+      body.calm-today-redesign[data-active-product-view="today"] .quick-form { grid-template-columns: 1fr; padding: 8px; }
+      body.calm-today-redesign[data-active-product-view="today"] .quick-form .primary-btn { width: 100%; }
+      body.calm-today-redesign[data-active-product-view="today"] .task-toolbar { display: grid; padding: 7px; }
+      body.calm-today-redesign[data-active-product-view="today"] .task-toolbar-actions { justify-content: stretch; }
+      body.calm-today-redesign[data-active-product-view="today"] .task-density-btn,
+      body.calm-today-redesign[data-active-product-view="today"] .sort-select { flex: 1 1 0; min-width: 0; }
+      body.calm-today-redesign[data-active-product-view="today"] .task-item,
+      body.calm-today-redesign[data-active-product-view="today"] .routine-item,
+      body.calm-today-redesign[data-active-product-view="today"] .reminder-item,
+      body.calm-today-redesign[data-active-product-view="today"] .timeline-card { padding: 13px; border-radius: 16px; }
+      .today-more-content { padding: 13px; gap: 13px; }
+      .today-more-content > .panel { padding: 15px !important; }
+    }
+    @media (max-width: 420px) {
+      body.calm-today-redesign[data-active-product-view="today"] .progress-top { grid-template-columns: 78px 1fr; }
+      body.calm-today-redesign[data-active-product-view="today"] .ring { width: 78px; }
+      body.calm-today-redesign[data-active-product-view="today"] .hero-main h2 { font-size: 1.48rem; }
+      body.calm-today-redesign[data-active-product-view="today"] .weather-actions .icon-btn:nth-child(1) { display: none; }
+      .portal-loading-logo { width: 82px; height: 82px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .portal-loading-dots i { animation: none; }
+    }
+
+
+    /* PWA chrome, account placement and desktop splash polish — v2.4.3 */
+    .pwa-status-glass { display: none; }
+    .portal-account-settings {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .portal-account-settings-main,
+    .portal-account-settings-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .portal-account-avatar {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--accent-strong);
+      background: var(--accent-faint);
+      border: 1px solid var(--border);
+      font-size: 1.05rem;
+    }
+    .portal-account-settings-copy { min-width: 0; }
+    .portal-account-settings-copy h4 { margin: 0 0 4px; }
+    .portal-account-settings-copy .portal-user-email {
+      display: block;
+      max-width: min(52vw, 420px);
+      color: var(--text);
+      font-size: .74rem;
+      direction: ltr;
+      unicode-bidi: plaintext;
+    }
+    .portal-account-settings-copy .portal-sync-group { margin-top: 7px; }
+    .portal-account-settings-copy .portal-sync-text { font-size: .68rem; }
+    .portal-account-settings-actions { margin-inline-start: auto; }
+
+    @media (min-width: 761px) {
+      .portal-loading-screen.calm-brand-loading {
+        padding: 32px;
+      }
+      .portal-loading-screen.calm-brand-loading .portal-loading-card {
+        width: auto;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      .portal-loading-screen.calm-brand-loading .portal-loading-logo {
+        width: 118px;
+        height: 118px;
+        margin: 0 auto 18px;
+        border-radius: 31px;
+        box-shadow: 0 22px 58px rgba(156,50,98,.14);
+      }
+      .portal-loading-screen.calm-brand-loading .portal-loading-title {
+        font-size: 1.42rem;
+        letter-spacing: -.025em;
+      }
+      .portal-loading-screen.calm-brand-loading .portal-loading-tagline,
+      .portal-loading-screen.calm-brand-loading .portal-loading-dots,
+      .portal-loading-screen.calm-brand-loading .portal-loading-status {
+        display: none !important;
+      }
+      .portal-loading-screen.calm-brand-loading .portal-loading-version {
+        position: fixed;
+        inset-inline: 0;
+        inset-block-end: max(24px, env(safe-area-inset-bottom));
+        margin: 0;
+        text-align: center;
+        font-size: .68rem;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .pwa-status-glass {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 90;
+        display: block;
+        height: env(safe-area-inset-top);
+        pointer-events: none;
+        background:
+          linear-gradient(135deg, rgba(92, 32, 61, .40), rgba(201, 70, 126, .27)),
+          rgba(255,255,255,.08);
+        border-bottom: 1px solid rgba(255,255,255,.22);
+        -webkit-backdrop-filter: blur(18px) saturate(1.35);
+        backdrop-filter: blur(18px) saturate(1.35);
+      }
+      .app-shell {
+        padding-top: calc(env(safe-area-inset-top) + 8px) !important;
+      }
+      .topbar {
+        top: calc(env(safe-area-inset-top) + 4px) !important;
+      }
+      .portal-account-settings {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .portal-account-settings-actions {
+        width: 100%;
+        margin-inline-start: 0;
+      }
+      .portal-account-settings-actions > * { flex: 1 1 auto; }
+      .portal-account-settings-copy .portal-user-email { max-width: 70vw; }
+    }
+
+
+    /* Routine cards visually unified with Today's task cards — v2.4.3 */
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .care-routine {
+      gap: 14px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-overview {
+      padding: 12px 14px;
+      border: 1px solid var(--calm-line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-2) 72%, #fff);
+      box-shadow: none;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-overview-row {
+      margin-bottom: 9px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-progress-track {
+      height: 7px;
+      background: color-mix(in srgb, var(--accent-soft) 68%, #fff);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--calm-line);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-2) 66%, #fff);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-sort-select {
+      min-height: 34px;
+      border-radius: 11px;
+      background: #fff;
+      font-size: .7rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-list {
+      gap: 12px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-time-group {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: .68rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item.routine-task-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 11px;
+      padding: 15px;
+      border: 1px solid var(--calm-line) !important;
+      border-radius: 18px;
+      background: #fff !important;
+      box-shadow: var(--calm-shadow-sm) !important;
+      opacity: 1;
+      transition: border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item.routine-task-card:hover {
+      transform: none !important;
+      border-color: var(--border-strong) !important;
+      box-shadow: 0 5px 16px color-mix(in srgb, var(--plum) 8%, transparent) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item.routine-task-card.not-due {
+      opacity: .72;
+      background: color-mix(in srgb, #fff 90%, var(--surface-2)) !important;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-item.routine-task-card.completed {
+      opacity: .72;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-check {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border-strong);
+      border-radius: 13px;
+      color: var(--accent-strong);
+      background: var(--surface-solid);
+      font-size: 1.28rem;
+      line-height: 1;
+      font-weight: 950;
+      box-shadow: none;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-check:not(:disabled):hover {
+      transform: translateY(-1px) scale(1.04);
+      border-color: var(--accent);
+      background: var(--accent-faint);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-check:not(:disabled):active {
+      transform: scale(.92);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-check:disabled {
+      color: var(--muted);
+      border-style: dashed;
+      background: var(--accent-faint);
+      opacity: .82;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card.completed .routine-check {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(145deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 8px 18px rgba(248,93,155,.25);
+      animation: heartCheckPop .28s ease-out;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-copy {
+      min-width: 0;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-heading {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-title {
+      min-width: 0;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      color: var(--text);
+      background: transparent;
+      font: inherit;
+      font-weight: 900;
+      text-align: start;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card.completed .routine-title {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-type,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-repeat,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-reminder-badge {
+      padding: 4px 7px;
+      border: 0;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 900;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-type {
+      color: var(--plum);
+      background: var(--accent-soft);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-repeat {
+      color: var(--muted);
+      background: color-mix(in srgb, var(--surface-2) 74%, #fff);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-reminder-badge {
+      color: var(--accent-strong);
+      background: var(--accent-faint);
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px 12px;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .72rem;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-next {
+      font-weight: 800;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-edit,
+    body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-delete {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: transparent;
+    }
+    @media (max-width: 560px) {
+      body.calm-today-redesign[data-active-product-view="today"] .routine-item.routine-task-card {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+      body.calm-today-redesign[data-active-product-view="today"] .routine-task-card .routine-actions {
+        grid-column: 2;
+        justify-content: flex-end;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #routinePanel .routine-sort-select {
+        width: 100%;
+      }
+    }
+
+
+
+    /* Wider, balanced desktop Today layout — v2.4.3 */
+    @media (min-width: 1180px) {
+      body.calm-today-redesign .app-shell {
+        width: min(calc(100% - 40px), 1320px);
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #mainContent {
+        width: min(100%, 1280px);
+      }
+      body.calm-today-redesign[data-active-product-view="today"] .hero {
+        grid-template-columns: minmax(0, 1.34fr) minmax(350px, .66fr);
+        gap: 20px;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] .dashboard-grid {
+        display: block;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] .today-primary-stack {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(380px, .75fr);
+        grid-template-areas:
+          "tasks routine"
+          "tasks more";
+        gap: 22px;
+        align-items: start;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #tasksPanel {
+        grid-area: tasks;
+        min-width: 0;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #routinePanel {
+        grid-area: routine;
+        min-width: 0;
+      }
+      body.calm-today-redesign[data-active-product-view="today"] #todayMoreDetails {
+        grid-area: more;
+        min-width: 0;
+      }
+    }
+
 </style>
 
   <link rel="stylesheet" href="./assets/portal.css">
-  <script src="./assets/js/app-version.js?v=2.1.1"></script>
-  <script src="./config.js?v=2.1.1"></script>
+  <script src="./assets/js/app-version.js?v=2.4.3"></script>
+  <script src="./config.js?v=2.4.3"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2.57.4"></script>
   <script src="./assets/cloud-bridge.js?v=1.5.3"></script>
 </head>
 <body class="portal-booting">
-  <div class="portal-loading-screen" id="portalLoadingScreen" role="status" aria-live="polite">
-    <div class="portal-loading-card"><div class="portal-spinner"></div><strong>Pinky Daily Plan</strong><p style="margin:7px 0 0;color:#8c6578;font-size:.78rem">در حال ورود و همگام‌سازی امن…</p></div>
+  <div class="pwa-status-glass" aria-hidden="true"></div>
+  <div class="portal-loading-screen calm-brand-loading" id="portalLoadingScreen" role="status" aria-live="polite" aria-atomic="true">
+    <div class="portal-loading-card">
+      <img class="portal-loading-logo" src="./icon-512.png" width="92" height="92" alt="" />
+      <strong class="portal-loading-title">Pinky Daily Plan</strong>
+      <p class="portal-loading-tagline">همراه آرام برنامه‌ریزی و پیشرفت روزانه</p>
+      <div class="portal-loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="portal-loading-status">در حال ورود و همگام‌سازی امن…</p>
+      <small class="portal-loading-version">نسخه 2.4.3</small>
+    </div>
   </div>
 
 
@@ -2643,15 +3428,6 @@
   <a class="skip-link" href="#mainContent">رفتن به محتوای اصلی</a>
 
   <div class="app-shell">
-    <section class="portal-session-bar" id="portalSessionBar" aria-label="حساب و همگام‌سازی">
-      <div class="portal-sync-group"><span class="portal-sync-dot" id="portalSyncDot" data-state="syncing"></span><span class="portal-sync-text" id="portalSyncText">در حال همگام‌سازی…</span></div>
-      <div class="portal-account-group">
-        <span class="portal-user-email" id="portalUserEmail"></span>
-        <a class="portal-mini-link" id="portalAdminLink" href="./admin.html" data-portal-i18n="admin" hidden>مدیریت</a>
-        <button class="portal-mini-button" id="portalAccountButton" type="button" data-portal-i18n="account">حساب</button>
-        <button class="portal-mini-button" id="portalLogoutButton" type="button" data-portal-i18n="logout">خروج</button>
-      </div>
-    </section>
 
     <dialog class="portal-account-dialog" id="portalAccountDialog">
       <div class="modal-shell">
@@ -2786,6 +3562,17 @@
             </div>
             <p class="energy-tip" id="energyTip">سطح انرژی را انتخاب کن تا یک پیشنهاد آرام دریافت کنی.</p>
           </section>
+
+          <section class="free-day-card" id="freeDayCard" aria-labelledby="freeDayTitle">
+            <div class="free-day-head">
+              <div class="free-day-copy">
+                <strong id="freeDayTitle">☁️ روز آزاد</strong>
+                <span id="freeDayStatus">امروز در آمار عادی محاسبه می‌شود.</span>
+              </div>
+              <button class="free-day-toggle" id="freeDayToggle" type="button" aria-pressed="false">فعال‌کردن روز آزاد</button>
+            </div>
+            <button class="soft-btn free-day-transfer" id="freeDayTransferButton" type="button" hidden>انتقال کارهای باقی‌مانده به فردا</button>
+          </section>
         </aside>
       </section>
 
@@ -2878,6 +3665,14 @@
                 </div>
                 <div class="routine-progress-track" aria-hidden="true"><div class="routine-progress-fill" id="routineProgressFill"></div></div>
               </div>
+              <div class="routine-toolbar">
+                <label for="routineSortSelect">چیدمان روتین‌ها</label>
+                <select class="routine-sort-select" id="routineSortSelect">
+                  <option value="time">مرتب‌سازی: زمان</option>
+                  <option value="type">مرتب‌سازی: نوع</option>
+                  <option value="next">مرتب‌سازی: نوبت بعدی</option>
+                </select>
+              </div>
 
               <form class="routine-form" id="routineForm">
                 <input id="editingRoutineId" type="hidden" />
@@ -2893,6 +3688,10 @@
                   <label class="sr-only" for="routineTimeInput">ساعت</label>
                   <input class="input" id="routineTimeInput" type="text" inputmode="numeric" dir="ltr" maxlength="5" autocomplete="off" placeholder="۰۰:۰۰" aria-label="ساعت انجام" />
                 </div>
+                <label class="routine-reminder-option" for="routineReminderEnabled">
+                  <input id="routineReminderEnabled" type="checkbox" />
+                  <span>🔔 اعلان در ساعت روتین</span>
+                </label>
                 <div class="routine-recurrence-panel recurrence-section">
                   <div class="recurrence-grid">
                     <div class="field">
@@ -3341,6 +4140,24 @@
         <button class="modal-close" id="closeSettingsDialog" type="button" aria-label="بستن">×</button>
       </div>
       <div class="settings-grid">
+
+        <section class="settings-group full portal-account-settings" id="accountSettingsGroup">
+          <div class="portal-account-settings-main">
+            <div class="portal-account-avatar" aria-hidden="true">👤</div>
+            <div class="portal-account-settings-copy">
+              <h4 data-portal-i18n="accountSettings">حساب و همگام‌سازی</h4>
+              <strong class="portal-user-email" id="portalUserEmail"></strong>
+              <div class="portal-sync-group" aria-live="polite">
+                <span class="portal-sync-dot" id="portalSyncDot" data-state="syncing"></span>
+                <span class="portal-sync-text" id="portalSyncText">در حال همگام‌سازی…</span>
+              </div>
+            </div>
+          </div>
+          <div class="portal-account-settings-actions">
+            <a class="portal-mini-link" id="portalAdminLink" href="./admin.html" data-portal-i18n="admin" hidden>مدیریت</a>
+            <button class="soft-btn" id="portalAccountButton" type="button" data-portal-i18n="manageAccount">مدیریت حساب</button>
+          </div>
+        </section>
         <section class="settings-group full">
           <div class="language-settings-row">
             <div>
@@ -3456,7 +4273,7 @@
 
       const STORAGE_KEY = "pinky-day-planner-v1";
       const BACKUP_KEY = "pinky-day-planner-v1-before-import";
-      const SCHEMA_VERSION = 16;
+      const SCHEMA_VERSION = 17;
       const POINTS = { small: 1, medium: 2, important: 3, large: 4, major: 5 };
       const PRIORITY_ORDER = { high: 3, normal: 2, low: 1 };
       const ROUTINE_TYPES = {
@@ -3635,6 +4452,8 @@
         scheduleByDate: {},
         routineItems: [],
         routineChecksByDate: {},
+        routineNotificationsByDate: {},
+        freeDays: {},
         energyLevels: {},
         reflections: {},
         achievements: {},
@@ -3644,7 +4463,7 @@
         weather: { status: "idle", error: "", cache: null, lastAttemptAt: null, locationStatus: "idle", locationError: "" },
         googleCalendar: { enabled: false, eventsByDate: {}, lastSync: null, error: "" },
         settings: {
-          theme: "light", taskSort: "time", taskDensity: "comfortable", displayName: "", displayNameFa: "", displayNameEn: "", language: runtimeLanguage, adaptiveTheme: true, useWeather: true, useLocation: true,
+          theme: "light", taskSort: "time", routineSort: "time", taskDensity: "comfortable", displayName: "", displayNameFa: "", displayNameEn: "", language: runtimeLanguage, adaptiveTheme: true, useWeather: true, useLocation: true,
           autoTheme: true, animation: "subtle", snowEffects: "subtle", themeMode: "auto", manualTheme: "pinky", manualSeason: "spring", selectedCity: "تهران", autoLocate: true, allowIpFallback: true, liveAtmosphereV1: true,
           selectedLocation: { name: "تهران", latitude: 35.6892, longitude: 51.389, timezone: "Asia/Tehran", source: "default" },
           googleClientId: ""
@@ -3684,7 +4503,7 @@
         rolloverShiftReminders: $("#rolloverShiftReminders"), closeRolloverDialog: $("#closeRolloverDialog"), rolloverLaterButton: $("#rolloverLaterButton"), archiveRolloverTasks: $("#archiveRolloverTasks"),
         timelineList: $("#timelineList"), timelineCounter: $("#timelineCounter"), reminderList: $("#reminderList"), syncCalendarButton: $("#syncCalendarButton"), notificationStatus: $("#notificationStatus"),
         pushStatus: $("#pushStatus"), pushEnableButton: $("#pushEnableButton"), pushTestButton: $("#pushTestButton"),
-        notificationButton: $("#notificationButton"), notificationTopButton: $("#notificationTopButton"), profileButton: $("#profileButton"), languageToggle: $("#languageToggle"), goalsGrid: $("#goalsGrid"), goalCounter: $("#goalCounter"),
+        notificationButton: $("#notificationButton"), notificationTopButton: $("#notificationTopButton"), freeDayCard: $("#freeDayCard"), freeDayStatus: $("#freeDayStatus"), freeDayToggle: $("#freeDayToggle"), freeDayTransferButton: $("#freeDayTransferButton"), profileButton: $("#profileButton"), languageToggle: $("#languageToggle"), goalsGrid: $("#goalsGrid"), goalCounter: $("#goalCounter"),
         templateGrid: $("#templateGrid"), templateCounter: $("#templateCounter"), templateTargetDateInput: $("#templateTargetDateInput"), templateTargetDateError: $("#templateTargetDateError"), newTemplateButton: $("#newTemplateButton"),
         templateDialog: $("#templateDialog"), templateForm: $("#templateForm"), templateNameInput: $("#templateNameInput"), templateSourceDateInput: $("#templateSourceDateInput"), templateSourceDateError: $("#templateSourceDateError"), templateSourceTaskList: $("#templateSourceTaskList"), templateSourceSelectAll: $("#templateSourceSelectAll"), templateSourceSelectedCount: $("#templateSourceSelectedCount"), closeTemplateDialog: $("#closeTemplateDialog"), cancelTemplateDialog: $("#cancelTemplateDialog"),
         newGoalButton: $("#newGoalButton"), performanceGrid: $("#performanceGrid"), weeklySelfCareReport: $("#weeklySelfCareReport"), performanceSummary: $("#performanceSummary"),
@@ -3718,7 +4537,7 @@
         themeModeSelect: $("#themeModeSelect"), themeSeasonSelect: $("#themeSeasonSelect"), manualThemeSelect: $("#manualThemeSelect"), animationSelect: $("#animationSelect"), snowEffectsSelect: $("#snowEffectsSelect"), themePreviewHint: $("#themePreviewHint"), selectedCityLabel: $("#selectedCityLabel"),
         citySearchInput: $("#citySearchInput"), citySearchButton: $("#citySearchButton"), cityResults: $("#cityResults"), useCurrentLocationButton: $("#useCurrentLocationButton"), weatherRetrySettings: $("#weatherRetrySettings"),
         googleClientIdInput: $("#googleClientIdInput"), googleConnectButton: $("#googleConnectButton"), googleSyncButton: $("#googleSyncButton"), googleDisconnectButton: $("#googleDisconnectButton"), googleCalendarStatus: $("#googleCalendarStatus"),
-        routineForm: $("#routineForm"), editingRoutineId: $("#editingRoutineId"), routineTitleInput: $("#routineTitleInput"), routineTypeInput: $("#routineTypeInput"), routineTimeInput: $("#routineTimeInput"),
+        routineForm: $("#routineForm"), routineSortSelect: $("#routineSortSelect"), routineReminderEnabled: $("#routineReminderEnabled"), editingRoutineId: $("#editingRoutineId"), routineTitleInput: $("#routineTitleInput"), routineTypeInput: $("#routineTypeInput"), routineTimeInput: $("#routineTimeInput"),
         routineRecurrenceType: $("#routineRecurrenceType"), routineRecurrenceInterval: $("#routineRecurrenceInterval"), routineRecurrenceIntervalField: $("#routineRecurrenceIntervalField"),
         routineRecurrenceWeekdaysField: $("#routineRecurrenceWeekdaysField"), routineRecurrenceWeekdayInputs: $$('[name="routineRecurrenceWeekday"]'),
         routineStartDateInput: $("#routineStartDateInput"), routineStartDateError: $("#routineStartDateError"), routineEndDateInput: $("#routineEndDateInput"), routineEndDateError: $("#routineEndDateError"),
@@ -4101,6 +4920,7 @@
         const linkedTaskId = raw.linkedTaskId && taskIds.has(raw.linkedTaskId) ? raw.linkedTaskId : null;
         return {
           id, linkedTaskId, title: String(raw.title || "مرحله بدون عنوان").slice(0,120), done: Boolean(raw.done),
+          subtasks: (Array.isArray(raw.subtasks) ? raw.subtasks : []).map(normalizeSubtask),
           createdAt: parseDateLike(raw.createdAt, nowIso()), completedAt: raw.done ? parseDateLike(raw.completedAt, nowIso()) : null,
           parentId: goalId
         };
@@ -4122,6 +4942,7 @@
           title: String(item?.title || "مورد بدون عنوان").trim().slice(0,100),
           type,
           time,
+          reminderEnabled: Boolean(item?.reminderEnabled),
           startDate,
           endDate,
           mode,
@@ -4164,11 +4985,14 @@
         const incomingRoutineItems = Array.isArray(raw.routineItems) ? raw.routineItems : (Array.isArray(raw.careRoutineItems) ? raw.careRoutineItems : []);
         next.routineItems = incomingRoutineItems.map(normalizeRoutineItem).filter(item => item.title);
         next.routineChecksByDate = raw.routineChecksByDate && typeof raw.routineChecksByDate === "object" ? { ...raw.routineChecksByDate } : {};
+        next.routineNotificationsByDate = raw.routineNotificationsByDate && typeof raw.routineNotificationsByDate === "object" ? { ...raw.routineNotificationsByDate } : {};
+        next.freeDays = raw.freeDays && typeof raw.freeDays === "object" ? Object.fromEntries(Object.entries(raw.freeDays).filter(([key,value]) => /^\d{4}-\d{2}-\d{2}$/.test(key) && value && typeof value === "object").map(([key,value]) => [key,{active:value.active!==false,markedAt:parseDateLike(value.markedAt,null)}])) : {};
         next.energyLevels = raw.energyLevels && typeof raw.energyLevels === "object" ? { ...raw.energyLevels } : {};
         next.reflections = raw.reflections && typeof raw.reflections === "object" ? { ...raw.reflections } : {};
         next.achievements = raw.achievements && typeof raw.achievements === "object" ? { ...raw.achievements } : {};
         next.settings = { ...next.settings, ...(raw.settings || {}) };
         next.settings.taskDensity = raw.settings?.taskDensity === "compact" ? "compact" : "comfortable";
+        next.settings.routineSort = ["time","type","next"].includes(raw.settings?.routineSort) ? raw.settings.routineSort : "time";
         const legacyDisplayName = String(raw.settings?.displayName || "").trim().slice(0,40);
         next.settings.displayNameFa = String(raw.settings?.displayNameFa || legacyDisplayName).trim().slice(0,40);
         next.settings.displayNameEn = String(raw.settings?.displayNameEn || "").trim().slice(0,40);
@@ -4209,7 +5033,7 @@
             next.performanceHistory[key] = {
               total, completed, points: Math.max(0, Number(value.points) || 0),
               routineTotal, routineCompleted, energy: ["low","medium","high"].includes(value.energy) ? value.energy : "",
-              hasReflection: Boolean(value.hasReflection), updatedAt: parseDateLike(value.updatedAt, null), source: String(value.source || "performance")
+              hasReflection: Boolean(value.hasReflection), freeDay: Boolean(value.freeDay || next.freeDays?.[key]?.active), updatedAt: parseDateLike(value.updatedAt, null), source: String(value.source || "performance")
             };
           });
         }
@@ -4260,10 +5084,10 @@
           if (!goal) { task.goalId = null; return; }
           let milestone = goal.milestones.find(m => m.linkedTaskId === task.id || m.id === task.id);
           if (!milestone) {
-            milestone = { id: task.id, linkedTaskId: task.id, title: task.title, done: task.done, createdAt: task.createdAt, completedAt: task.completedAt, parentId: goal.id };
+            milestone = { id: task.id, linkedTaskId: task.id, title: task.title, done: task.done, subtasks:(task.subtasks||[]).map(item=>normalizeSubtask({...item})), createdAt: task.createdAt, completedAt: task.completedAt, parentId: goal.id };
             goal.milestones.push(milestone);
           } else {
-            milestone.linkedTaskId = task.id; milestone.title = task.title; milestone.done = task.done; milestone.completedAt = task.completedAt; milestone.parentId = goal.id;
+            milestone.linkedTaskId = task.id; milestone.title = task.title; milestone.done = task.done; milestone.subtasks=(task.subtasks||[]).map(item=>normalizeSubtask({...item})); milestone.completedAt = task.completedAt; milestone.parentId = goal.id;
           }
         });
       }
@@ -4321,13 +5145,14 @@
           if (!newGoal) { task.goalId = null; return; }
           let milestone = existing?.milestone;
           if (existing && existing.goal.id !== newGoalId) existing.goal.milestones = existing.goal.milestones.filter(m => m.id !== milestone.id);
-          if (!milestone) milestone = { id: task.id, linkedTaskId: task.id, title: task.title, done: task.done, createdAt: task.createdAt, completedAt: task.completedAt, parentId: newGoalId };
-          Object.assign(milestone, { linkedTaskId: task.id, title: task.title, done: task.done, completedAt: task.completedAt, parentId: newGoalId });
+          if (!milestone) milestone = { id: task.id, linkedTaskId: task.id, title: task.title, done: task.done, subtasks:(task.subtasks||[]).map(item=>normalizeSubtask({...item})), createdAt: task.createdAt, completedAt: task.completedAt, parentId: newGoalId };
+          Object.assign(milestone, { linkedTaskId: task.id, title: task.title, done: task.done, subtasks:(task.subtasks||[]).map(item=>normalizeSubtask({...item})), completedAt: task.completedAt, parentId: newGoalId });
           if (!newGoal.milestones.some(m => m.id === milestone.id)) newGoal.milestones.push(milestone);
         } else if (existing) {
           existing.milestone.linkedTaskId = null;
           existing.milestone.title = task.title;
           existing.milestone.done = task.done;
+          existing.milestone.subtasks=(task.subtasks||[]).map(item=>normalizeSubtask({...item}));
           existing.milestone.completedAt = task.completedAt;
           existing.milestone.parentId = existing.goal.id;
           const record = activityRecord(task.id); if (record) { record.type = "milestone"; record.parentId = existing.goal.id; record.points = 1; }
@@ -4385,11 +5210,9 @@
         return [...new Set(state.activity.filter(r => r.type === "task" && r.completedAt).map(r => dateKeyFromAny(r.completedAt)))].sort();
       }
       function computeStreak() {
-        const dates = new Set(completionDates());
-        let cursor = new Date();
-        if (!dates.has(localDateKey(cursor))) cursor.setDate(cursor.getDate()-1);
-        let count = 0;
-        while (dates.has(localDateKey(cursor))) { count += 1; cursor.setDate(cursor.getDate()-1); }
+        const dates = new Set(completionDates());let cursor = new Date();let count = 0;let guard=0;
+        if (!dates.has(localDateKey(cursor)) && !isFreeDay(localDateKey(cursor))) cursor.setDate(cursor.getDate()-1);
+        while (guard<740) {const key=localDateKey(cursor);if(dates.has(key)){count+=1;cursor.setDate(cursor.getDate()-1);}else if(isFreeDay(key)){cursor.setDate(cursor.getDate()-1);}else break;guard+=1;}
         return count;
       }
       function unlockAchievements() {
@@ -4406,19 +5229,26 @@
         if (!complete) goal.completedAt = null;
       }
 
+      function isFreeDay(key=localDateKey()){return Boolean(state.freeDays?.[key]?.active);}
+      function remainingTasksForDate(key=localDateKey()){return state.tasks.filter(task=>!task.done&&!task.archivedAt&&task.plannedDate===key);}
+      function renderFreeDay(){if(!els.freeDayCard)return;const key=localDateKey();const active=isFreeDay(key);const remaining=remainingTasksForDate(key);els.freeDayCard.classList.toggle("is-active",active);els.freeDayToggle.setAttribute("aria-pressed",String(active));els.freeDayToggle.textContent=active?(uiLanguage()==="en"?"Return to a regular day":"بازگشت به روز عادی"):(uiLanguage()==="en"?"Make today a free day":"فعال‌کردن روز آزاد");els.freeDayStatus.textContent=active?(uiLanguage()==="en"?`Today is excluded from performance reports. ${remaining.length} unfinished tasks can be moved to tomorrow.`:`امروز از آمار عملکرد کنار گذاشته می‌شود و تداوم آرامت قطع نمی‌شود. ${fa(remaining.length)} کار باقی‌مانده را می‌توانی به فردا منتقل کنی.`):(uiLanguage()==="en"?"Today is included normally in your performance reports.":"امروز در آمار عادی محاسبه می‌شود.");els.freeDayTransferButton.hidden=!active||!remaining.length;els.freeDayTransferButton.textContent=uiLanguage()==="en"?`Move ${remaining.length} remaining tasks to tomorrow`:`انتقال ${fa(remaining.length)} کار باقی‌مانده به فردا`;}
+      function toggleFreeDay(){const key=localDateKey();if(isFreeDay(key))delete state.freeDays[key];else state.freeDays[key]={active:true,markedAt:nowIso()};renderAll();showToast(isFreeDay(key)?"امروز روز آزاد ثبت شد؛ بدون فشار استراحت کن ☁️":"امروز دوباره روز عادی شد.","روز آزاد");}
+      function transferFreeDayTasks(){const key=localDateKey();const tasks=remainingTasksForDate(key);if(!tasks.length)return;const tomorrow=shiftDateKey(key,1);if(!confirm(`${fa(tasks.length)} کار باقی‌مانده به فردا منتقل شوند؟ یادآوری‌هایشان نیز یک روز جابه‌جا می‌شود.`))return;let moved=0;tasks.forEach(task=>{if(moveTaskToDate(task,tomorrow,{shiftReminder:true}))moved+=1;});ensureRecurringOccurrences();renderAll();showToast(`${fa(moved)} کار به فردا منتقل شد.`,"روز آزاد");}
+
       function renderHeaderAndHero() {
         const [hello, eyebrow] = greeting();
         const today = localDateKey();
         // دایره Hero فقط کارهای ثبت‌شده در بخش «کارهای روزانه» برای امروز را نشان می‌دهد.
         // گزارش‌های هفتگی، ماهانه، فصلی و سالانه همچنان همه Taskها و milestoneهای مستقل را محاسبه می‌کنند.
         const summary = dailyTaskSummaryForKey(today);
-        const percent = summary.rate;
+        const freeDay=isFreeDay(today);
+        const percent = freeDay ? 0 : summary.rate;
         const streak = computeStreak();
         const displayName = String(uiLanguage()==="en" ? (state.settings.displayNameEn || "") : (state.settings.displayNameFa || state.settings.displayName || "")).trim();
         const greetingSeparator=uiLanguage()==="en" ? ", " : "، ";
         els.heroGreeting.textContent = displayName ? `${hello.replace(/\s[🌸🌤🌙❄️🩵🌨️🧣]+$/u, "")}${greetingSeparator}${displayName} ${resolveTheme().themeId.startsWith("winter-")?"❄️":"🌸"}` : hello; els.greetingEyebrow.textContent = `✦ ${eyebrow}`; els.todayDate.textContent = formatJalaliDate(new Date());
-        els.todayProgressRing.style.setProperty("--value", `${percent*3.6}deg`); els.todayProgressRing.setAttribute("aria-label", `عملکرد کارهای روزانه امروز ${fa(percent)} درصد؛ ${fa(summary.completed)} از ${fa(summary.total)} کار روزانه تکمیل شده`);
-        els.todayProgressValue.textContent = summary.total ? `${fa(percent)}٪` : "—";
+        els.todayProgressRing.style.setProperty("--value", `${percent*3.6}deg`); els.todayProgressRing.setAttribute("aria-label", freeDay ? "امروز روز آزاد است و در آمار عملکرد محاسبه نمی‌شود" : `عملکرد کارهای روزانه امروز ${fa(percent)} درصد؛ ${fa(summary.completed)} از ${fa(summary.total)} کار روزانه تکمیل شده`);
+        els.todayProgressValue.textContent = freeDay ? (uiLanguage()==="en"?"Free":"آزاد") : (summary.total ? `${fa(percent)}٪` : "—");
         els.heroTaskCount.textContent = `${fa(summary.completed)} از ${fa(summary.total)}`;
         els.heroStreak.textContent = `${fa(streak)} روز`;
         els.heroPoints.textContent = `${fa(summary.completedPoints)} / ${fa(summary.totalPoints)} امتیاز`;
@@ -4925,7 +5755,7 @@
           if (task.templateId) $(".template-origin",item).textContent = `▦ ${task.templateName || (uiLanguage()==="en"?"Template":"قالب")}`;
           const subtaskDetails=$(".task-subtasks",item);subtaskDetails?.addEventListener("toggle",()=>{if(subtaskDetails.open)openSubtaskTaskIds.add(task.id);else openSubtaskTaskIds.delete(task.id);});
           const subtaskList=$(".task-subtask-list",item);
-          if(subtaskList)task.subtasks.forEach(subtask=>{const row=document.createElement("div");row.className=`task-subtask-row${subtask.done?" done":""}`;row.innerHTML=`<button class="subtask-check" type="button" aria-pressed="${subtask.done}" aria-label="${subtask.done?"بازکردن زیرکار":"تکمیل زیرکار"}">${subtask.done?"✓":""}</button><span class="task-subtask-title user-content"></span>${task.archivedAt?"":'<div class="task-subtask-actions"><button class="mini-btn edit-inline-subtask" type="button" aria-label="ویرایش زیرکار" title="ویرایش">✎</button><button class="mini-btn danger delete-inline-subtask" type="button" aria-label="حذف زیرکار" title="حذف">×</button></div>'}`;$(".task-subtask-title",row).textContent=subtask.title;$(".subtask-check",row).disabled=Boolean(task.archivedAt);$(".subtask-check",row).addEventListener("click",()=>toggleTaskSubtask(task.id,subtask.id));$(".edit-inline-subtask",row)?.addEventListener("click",()=>editTaskSubtask(task.id,subtask.id));$(".delete-inline-subtask",row)?.addEventListener("click",()=>deleteTaskSubtask(task.id,subtask.id));subtaskList.append(row);});
+          if(subtaskList)task.subtasks.forEach(subtask=>{const row=document.createElement("div");row.className=`task-subtask-row${subtask.done?" done":""}`;row.innerHTML=`<button class="subtask-check" type="button" aria-pressed="${subtask.done}" aria-label="${subtask.done?"بازکردن زیرکار":"تکمیل زیرکار"}">${subtask.done?"✓":""}</button><button class="task-subtask-title user-content" type="button" aria-pressed="${subtask.done}" aria-label="${subtask.done?"بازکردن زیرکار":"تکمیل زیرکار"}"></button>${task.archivedAt?"":'<div class="task-subtask-actions"><button class="mini-btn edit-inline-subtask" type="button" aria-label="ویرایش زیرکار" title="ویرایش">✎</button><button class="mini-btn danger delete-inline-subtask" type="button" aria-label="حذف زیرکار" title="حذف">×</button></div>'}`;$(".task-subtask-title",row).textContent=subtask.title;$(".subtask-check",row).disabled=Boolean(task.archivedAt);$(".task-subtask-title",row).disabled=Boolean(task.archivedAt);const toggle=()=>toggleTaskSubtask(task.id,subtask.id);$(".subtask-check",row).addEventListener("click",toggle);$(".task-subtask-title",row).addEventListener("click",toggle);$(".edit-inline-subtask",row)?.addEventListener("click",()=>editTaskSubtask(task.id,subtask.id));$(".delete-inline-subtask",row)?.addEventListener("click",()=>deleteTaskSubtask(task.id,subtask.id));subtaskList.append(row);});
           const inlineInput=$(".inline-subtask-input",item);$(".inline-subtask-add",item)?.addEventListener("click",()=>addInlineTaskSubtask(task.id,inlineInput));inlineInput?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();addInlineTaskSubtask(task.id,inlineInput);}});
           const checkButton=$(".check-btn", item);checkButton.disabled=Boolean(task.archivedAt);checkButton.addEventListener("click", event => toggleTask(task.id, event.currentTarget));
           $(".move-task",item)?.addEventListener("click",()=>openRolloverDialog(task.id));
@@ -4981,15 +5811,11 @@
         return { text: `${fa(Math.ceil(hours/24))} روز دیگر`, overdue: false };
       }
       function renderReminders() {
-        const reminders = state.tasks.filter(t => !t.archivedAt && t.reminderAt && !t.done).sort((a,b) => new Date(a.reminderAt)-new Date(b.reminderAt));
+        const taskReminders=state.tasks.filter(t => !t.archivedAt && t.reminderAt && !t.done).map(task=>({...task,type:"task"}));
+        const reminders=[...taskReminders,...upcomingRoutineReminders(30)].sort((a,b)=>new Date(a.reminderAt)-new Date(b.reminderAt));
         els.reminderList.innerHTML = "";
-        if (!reminders.length) { els.reminderList.innerHTML = '<div class="empty-state"><strong>یادآوری فعالی نداری.</strong><span>برای کار موردنظر روی زنگ بزن.</span></div>'; return; }
-        reminders.slice(0,6).forEach(task => {
-          const cd = countdownText(task.reminderAt); const item = document.createElement("article");
-          item.className = `reminder-item${cd.overdue ? " overdue" : ""}`;
-          item.innerHTML = `<div class="reminder-icon">🔔</div><div class="reminder-copy"><strong></strong><small>${formatReminder(task.reminderAt)}</small><span class="countdown${cd.overdue ? " overdue" : ""}">${cd.text}</span></div><div class="task-actions"><button class="mini-btn add-to-calendar" type="button" aria-label="افزودن به تقویم گوشی">📅</button><button class="mini-btn edit-reminder" type="button" aria-label="ویرایش یادآوری">✎</button><button class="mini-btn danger remove-reminder" type="button" aria-label="حذف یادآوری">×</button></div>`;
-          $("strong", item).textContent = task.title; $(".add-to-calendar", item).addEventListener("click", () => downloadTaskIcs(task)); $(".edit-reminder", item).addEventListener("click", () => openTaskDialog(task.id, true)); $(".remove-reminder", item).addEventListener("click", () => removeTaskReminder(task.id)); els.reminderList.append(item);
-        });
+        if (!reminders.length) { els.reminderList.innerHTML = '<div class="empty-state"><strong>یادآوری فعالی نداری.</strong><span>برای کار یا روتین موردنظر اعلان تنظیم کن.</span></div>'; return; }
+        reminders.slice(0,8).forEach(item => {const cd=countdownText(item.reminderAt);const card=document.createElement("article");card.className=`reminder-item${cd.overdue ? " overdue" : ""}`;const isRoutine=item.type==="routine";card.innerHTML=`<div class="reminder-icon">${isRoutine?"✨":"🔔"}</div><div class="reminder-copy"><strong></strong><small>${isRoutine?(uiLanguage()==="en"?"Routine · ":"روتین · "):""}${formatReminder(item.reminderAt)}</small><span class="countdown${cd.overdue ? " overdue" : ""}">${cd.text}</span></div><div class="task-actions"><button class="mini-btn add-to-calendar" type="button" aria-label="افزودن به تقویم گوشی">📅</button><button class="mini-btn edit-reminder" type="button" aria-label="ویرایش یادآوری">✎</button><button class="mini-btn danger remove-reminder" type="button" aria-label="حذف یادآوری">×</button></div>`;$("strong",card).textContent=item.title;$(".add-to-calendar",card).addEventListener("click",()=>downloadIcsFile(buildIcsCalendar([taskIcsEvent(item)]),`Pinky-${isRoutine?"Routine":"Task"}-Reminder.ics`));$(".edit-reminder",card).addEventListener("click",()=>isRoutine?openRoutineEdit(item.routineId):openTaskDialog(item.id,true));$(".remove-reminder",card).addEventListener("click",()=>isRoutine?removeRoutineReminder(item.routineId):removeTaskReminder(item.id));els.reminderList.append(card);});
       }
 
       function renderGoals() {
@@ -5005,15 +5831,29 @@
           goal.milestones.forEach(m=>{
             const task = linkedTask(m);
             const scheduledToday = Boolean(task && !task.archivedAt && task.plannedDate === localDateKey());
+            const subtasks=milestoneSubtasks(m);
+            const completedSubtasks=subtasks.filter(item=>item.done).length;
             const row=document.createElement("div"); row.className=`milestone${m.done?" done":""}`;
-            row.innerHTML=`<button class="check-btn" type="button" aria-label="${m.done?"ناتمام کردن مرحله":"تکمیل مرحله"}">${m.done?"♥":""}</button><span class="milestone-title"></span><div class="task-actions"><button class="today-task-toggle" type="button" aria-pressed="${scheduledToday}" ${m.done && !scheduledToday ? "disabled" : ""} aria-label="${scheduledToday ? "برداشتن از کارهای روزانه امروز" : "افزودن به کارهای روزانه امروز"}">${scheduledToday ? "✓ امروز" : "+ امروز"}</button><button class="mini-btn edit-milestone" type="button" aria-label="ویرایش مرحله">✎</button><button class="mini-btn danger delete-milestone" type="button" aria-label="حذف مرحله">×</button></div>`;
-            $(".milestone-title",row).textContent=m.title; $(".check-btn",row).addEventListener("click",()=>toggleMilestone(goal.id,m.id));
+            row.innerHTML=`<button class="check-btn" type="button" aria-pressed="${m.done}" aria-label="${m.done?"ناتمام کردن مرحله":"تکمیل مرحله"}">${m.done?"♥":""}</button><div class="milestone-main"><button class="milestone-title milestone-title-button user-content" type="button" aria-label="${m.done?"ناتمام کردن مرحله":"تکمیل مرحله"}"></button><div class="goal-subtasks"><span class="goal-subtask-progress">${subtasks.length?`${fa(completedSubtasks)} از ${fa(subtasks.length)} زیرکار انجام شده`:"برای این مرحله زیرکار اضافه کن"}</span><div class="goal-subtask-list"></div><form class="goal-subtask-add"><input class="input" maxlength="120" placeholder="زیرکار جدید..." aria-label="عنوان زیرکار جدید"><button class="soft-btn" type="submit">＋ زیرکار</button></form></div></div><div class="task-actions"><button class="today-task-toggle" type="button" aria-pressed="${scheduledToday}" ${m.done && !scheduledToday ? "disabled" : ""} aria-label="${scheduledToday ? "برداشتن از کارهای روزانه امروز" : "افزودن به کارهای روزانه امروز"}">${scheduledToday ? "✓ امروز" : "+ امروز"}</button><button class="mini-btn edit-milestone" type="button" aria-label="ویرایش مرحله">✎</button><button class="mini-btn danger delete-milestone" type="button" aria-label="حذف مرحله">×</button></div>`;
+            $(".milestone-title",row).textContent=m.title;
+            const toggleMilestoneFromUi=()=>toggleMilestone(goal.id,m.id);
+            $(".check-btn",row).addEventListener("click",toggleMilestoneFromUi);$(".milestone-title-button",row).addEventListener("click",toggleMilestoneFromUi);
+            const subtaskList=$(".goal-subtask-list",row);
+            subtasks.forEach(subtask=>{
+              const subrow=document.createElement("div");subrow.className=`goal-subtask-row${subtask.done?" done":""}`;
+              subrow.innerHTML=`<button class="subtask-check" type="button" aria-pressed="${subtask.done}" aria-label="${subtask.done?"بازکردن زیرکار":"تکمیل زیرکار"}">${subtask.done?"✓":""}</button><button class="goal-subtask-title user-content" type="button" aria-pressed="${subtask.done}" aria-label="${subtask.done?"بازکردن زیرکار":"تکمیل زیرکار"}"></button><div class="goal-subtask-actions"><button class="mini-btn edit-goal-subtask" type="button" aria-label="ویرایش زیرکار">✎</button><button class="mini-btn danger delete-goal-subtask" type="button" aria-label="حذف زیرکار">×</button></div>`;
+              $(".goal-subtask-title",subrow).textContent=subtask.title;
+              const toggle=()=>toggleGoalSubtask(goal.id,m.id,subtask.id);$(".subtask-check",subrow).addEventListener("click",toggle);$(".goal-subtask-title",subrow).addEventListener("click",toggle);
+              $(".edit-goal-subtask",subrow).addEventListener("click",()=>editGoalSubtask(goal.id,m.id,subtask.id));$(".delete-goal-subtask",subrow).addEventListener("click",()=>deleteGoalSubtask(goal.id,m.id,subtask.id));subtaskList.append(subrow);
+            });
+            $(".goal-subtask-add",row).addEventListener("submit",event=>{event.preventDefault();const input=$("input",event.currentTarget);const title=input.value.trim();if(title){addGoalSubtask(goal.id,m.id,title);input.value="";}});
             $(".today-task-toggle",row).addEventListener("click",()=>toggleMilestoneToday(goal.id,m.id));
             $(".edit-milestone",row).addEventListener("click",()=>editMilestone(goal.id,m.id)); $(".delete-milestone",row).addEventListener("click",()=>deleteMilestone(goal.id,m.id)); list.append(row);
           });
           $(".add-milestone-form",card).addEventListener("submit",event=>{event.preventDefault();const input=$("input",event.currentTarget);const title=input.value.trim();if(title){addMilestone(goal.id,title);input.value="";}});
           $(".edit-goal",card).addEventListener("click",()=>openGoalDialog(goal.id)); $(".delete-goal",card).addEventListener("click",()=>deleteGoal(goal.id)); els.goalsGrid.append(card);
         });
+        applyLanguage(els.goalsGrid);
       }
 
       function startOfDay(date) { return new Date(date.getFullYear(),date.getMonth(),date.getDate(),0,0,0,0); }
@@ -5119,7 +5959,7 @@
           taskTotal:activity.taskTotal, taskCompleted:activity.taskCompleted,
           milestoneTotal:activity.milestoneTotal, milestoneCompleted:activity.milestoneCompleted,
           routineTotal:routineItems.length, routineCompleted, energy:state.energyLevels?.[key]||"",
-          hasReflection:Boolean(reflection&&(reflection.proud||reflection.hard||reflection.tomorrow||reflection.selfPride)),
+          hasReflection:Boolean(reflection&&(reflection.proud||reflection.hard||reflection.tomorrow||reflection.selfPride)), freeDay:isFreeDay(key),
           updatedAt:null, source:"activity-derived"
         };
       }
@@ -5147,14 +5987,14 @@
           taskTotal:Math.max(0,Number(saved.taskTotal)||total), taskCompleted:Math.max(0,Number(saved.taskCompleted)||Math.min(total,Math.max(0,Number(saved.completed)||0))),
           milestoneTotal:Math.max(0,Number(saved.milestoneTotal)||0), milestoneCompleted:Math.max(0,Number(saved.milestoneCompleted)||0),
           routineTotal, routineCompleted:Math.min(routineTotal,Math.max(0,Number(saved.routineCompleted)||0)),
-          energy:["low","medium","high"].includes(saved.energy)?saved.energy:"", hasReflection:Boolean(saved.hasReflection),
+          energy:["low","medium","high"].includes(saved.energy)?saved.energy:"", hasReflection:Boolean(saved.hasReflection), freeDay:Boolean(saved.freeDay||isFreeDay(key)),
           updatedAt:saved.updatedAt||null, source:saved.source||"saved"
         };
       }
       function routineReportFor(period) {
         const end=effectivePeriodEnd(period); if(end<period.start)return {total:0,completed:0,rate:0,activeDays:0};
         let total=0,completed=0,activeDays=0;
-        eachDateKey(period.start,end).forEach(key=>{const day=dailyPerformanceForKey(key);if(day.routineTotal>0)activeDays+=1;total+=day.routineTotal;completed+=day.routineCompleted;});
+        eachDateKey(period.start,end).forEach(key=>{if(isFreeDay(key))return;const day=dailyPerformanceForKey(key);if(day.routineTotal>0)activeDays+=1;total+=day.routineTotal;completed+=day.routineCompleted;});
         return {total,completed,rate:total?Math.round(completed/total*100):0,activeDays};
       }
       function selfCareReportFor(period) {
@@ -5163,6 +6003,7 @@
         if (end < period.start) return { total: 0, completed: 0, rate: 0, activeDays: 0, categories };
         let activeDays = 0;
         eachDateKey(period.start, end).forEach(key => {
+          if(isFreeDay(key)) return;
           const items = routineItemsForDateKey(key);
           const checks = state.routineChecksByDate?.[key] || {};
           if (items.length) activeDays += 1;
@@ -5186,6 +6027,7 @@
         const minimumPoints = period.key === "today" ? 1 : 2;
         const daily=dayKeys.map(key=>{
           const snapshot=dailyPerformanceForKey(key);
+          if(isFreeDay(key))return {key,total:0,completed:0,rate:null,points:0,taskTotal:0,taskCompleted:0,milestoneTotal:0,milestoneCompleted:0,routineTotal:0,routineCompleted:0,source:"free-day",freeDay:true};
           const filteredActivity = minimumPoints > 1 ? activitySummaryForKey(key, minimumPoints) : null;
           const total = filteredActivity ? filteredActivity.total : snapshot.total;
           const completed = filteredActivity ? filteredActivity.completed : snapshot.completed;
@@ -5211,7 +6053,7 @@
         routine.activeDays=daily.filter(day=>day.routineTotal>0).length;
         const reflectionDays=dayKeys.filter(key=>dailyPerformanceForKey(key).hasReflection).length;
         const selfCare=selfCareReportFor(period);
-        return {total,completed,completedTasks:taskCompleted,taskTotal,taskCompleted,milestoneTotal,milestoneCompleted,points,rate:total?Math.round(completed/total*100):0,avg,daily,plannedDays:plannedDays.length,elapsedDays:dayKeys.length,routine,selfCare,reflectionDays,end,minimumPoints};
+        return {total,completed,completedTasks:taskCompleted,taskTotal,taskCompleted,milestoneTotal,milestoneCompleted,points,rate:total?Math.round(completed/total*100):0,avg,daily,plannedDays:plannedDays.length,elapsedDays:dayKeys.filter(key=>!isFreeDay(key)).length,freeDays:dayKeys.filter(isFreeDay).length,routine,selfCare,reflectionDays,end,minimumPoints};
       }
       function renderWeeklySelfCareReport(report) {
         if (!els.weeklySelfCareReport) return;
@@ -5236,8 +6078,11 @@
       function renderPerformance() {
         els.performanceGrid.innerHTML=""; const ps=periods(); const reports={};
         ps.forEach(period=>{
-          const r=reportFor(period);reports[period.key]=r;const card=document.createElement("article");card.className=`performance-card${r.total?"":" no-plan"}`;
-          card.innerHTML=`<h4>${period.title}</h4><p class="performance-period">${period.label}</p><div class="performance-rate">${r.total?`${fa(r.rate)}٪`:"—"}</div><span class="rate-caption">${r.total?`${fa(r.completed)} از ${fa(r.total)} فعالیت`:"بدون فعالیت واجد شرایط"}</span><div class="performance-bar" aria-hidden="true"><span style="width:${r.rate}%"></span></div><div class="performance-stats"><span>${period.key==="today"?"همه کارهای امروز":"فقط کارهای ۲ تا ۵ امتیازی"}</span><span>روزانه: ${fa(r.taskCompleted)} از ${fa(r.taskTotal)}</span><span>اهداف: ${fa(r.milestoneCompleted)} از ${fa(r.milestoneTotal)}</span><span>${fa(r.points)} امتیاز کسب‌شده</span><span>میانگین روزهای برنامه‌دار ${fa(r.avg)}٪</span><span>${period.key==="week"?"رسیدگی به خودم":"پایبندی روتین"} ${r.selfCare.total?`${fa(r.selfCare.rate)}٪`:"—"}</span></div>`;
+          const r=reportFor(period);reports[period.key]=r;const card=document.createElement("article");const todayIsFree=period.key==="today"&&isFreeDay(localDateKey());card.className=`performance-card${r.total||todayIsFree?"":" no-plan"}${todayIsFree?" free-day-performance":""}`;
+          const rateText=todayIsFree?(uiLanguage()==="en"?"Free":"آزاد"):(r.total?`${fa(r.rate)}٪`:"—");
+          const captionText=todayIsFree?(uiLanguage()==="en"?"Excluded from performance reporting":"از گزارش عملکرد کنار گذاشته شده"):(r.total?`${fa(r.completed)} از ${fa(r.total)} فعالیت`:"بدون فعالیت واجد شرایط");
+          const freeDayStat=r.freeDays?`<span>${uiLanguage()==="en"?`Free days: ${r.freeDays}`:`روزهای آزاد: ${fa(r.freeDays)}`}</span>`:"";
+          card.innerHTML=`<h4>${period.title}</h4><p class="performance-period">${period.label}</p><div class="performance-rate">${rateText}</div><span class="rate-caption">${captionText}</span><div class="performance-bar" aria-hidden="true"><span style="width:${todayIsFree?0:r.rate}%"></span></div><div class="performance-stats"><span>${period.key==="today"?"همه کارهای امروز":"فقط کارهای ۲ تا ۵ امتیازی"}</span><span>روزانه: ${fa(r.taskCompleted)} از ${fa(r.taskTotal)}</span><span>اهداف: ${fa(r.milestoneCompleted)} از ${fa(r.milestoneTotal)}</span><span>${fa(r.points)} امتیاز کسب‌شده</span><span>میانگین روزهای برنامه‌دار ${fa(r.avg)}٪</span><span>${period.key==="week"?"رسیدگی به خودم":"پایبندی روتین"} ${r.selfCare.total?`${fa(r.selfCare.rate)}٪`:"—"}</span>${freeDayStat}</div>`;
           els.performanceGrid.append(card);
         });
         const week=ps.find(p=>p.key==="week");const prev={...week,start:shiftDays(week.start,-7),end:shiftDays(week.end,-7)};const current=reports.week;const previous=reportFor(prev);
@@ -5902,21 +6747,23 @@
         return nextRecurringDate(item, fromKey);
       }
       function sortedRoutineItems(dateKey = localDateKey()) {
+        const sort=state.settings.routineSort||"time";
         return [...state.routineItems].sort((a,b) => {
           const aDue = recurrenceMatchesDate(a,dateKey) ? 0 : 1;
           const bDue = recurrenceMatchesDate(b,dateKey) ? 0 : 1;
           if (aDue !== bDue) return aDue - bDue;
+          const timeDiff = (a.time || "99:99").localeCompare(b.time || "99:99");
+          const typeDiff = (ROUTINE_TYPES[a.type]?.order || 99) - (ROUTINE_TYPES[b.type]?.order || 99);
           const aNext = nextRoutineDate(a,dateKey) || "9999-12-31";
           const bNext = nextRoutineDate(b,dateKey) || "9999-12-31";
           const nextDiff = aNext.localeCompare(bNext);
-          if (nextDiff) return nextDiff;
-          const timeDiff = (a.time || "99:99").localeCompare(b.time || "99:99");
-          if (timeDiff) return timeDiff;
-          const typeDiff = (ROUTINE_TYPES[a.type]?.order || 99) - (ROUTINE_TYPES[b.type]?.order || 99);
-          if (typeDiff) return typeDiff;
-          return new Date(a.createdAt) - new Date(b.createdAt);
+          if(sort==="type")return typeDiff||timeDiff||nextDiff||new Date(a.createdAt)-new Date(b.createdAt);
+          if(sort==="next")return nextDiff||timeDiff||typeDiff||new Date(a.createdAt)-new Date(b.createdAt);
+          return timeDiff||typeDiff||nextDiff||new Date(a.createdAt)-new Date(b.createdAt);
         });
       }
+      function routineTimeGroup(item){const minute=clockMinutes(item.time);if(minute==null)return "none";if(minute<12*60)return "morning";if(minute<17*60)return "afternoon";if(minute<21*60)return "evening";return "night";}
+      function routineTimeGroupLabel(group){const english=uiLanguage()==="en";return ({morning:english?"Morning":"صبح",afternoon:english?"Afternoon":"ظهر و بعدازظهر",evening:english?"Evening":"عصر",night:english?"Night":"شب",none:english?"No set time":"بدون ساعت"})[group]||group;}
       function renderRoutine() {
         const today = localDateKey();
         const items = sortedRoutineItems(today);
@@ -5926,184 +6773,70 @@
         const completed = dueItems.filter(item => Boolean(doneMap[item.id])).length;
         const percent = dueItems.length ? Math.round((completed / dueItems.length) * 100) : 0;
         const english = uiLanguage() === "en";
+        if(els.routineSortSelect)els.routineSortSelect.value=state.settings.routineSort||"time";
         els.routineCounter.textContent = english ? `${dueItems.length} today · ${items.length} total` : `${fa(dueItems.length)} امروز · ${fa(items.length)} کل`;
         els.routineProgressText.textContent = english ? `${completed} of ${dueItems.length} completed` : `${fa(completed)} از ${fa(dueItems.length)} انجام شده`;
         els.routineProgressFill.style.width = `${percent}%`;
         els.routineList.innerHTML = "";
-        if (!items.length) {
-          els.routineList.innerHTML = '<div class="empty-state"><strong>هنوز روتینی ثبت نشده ✨</strong><span>اولین محصول پوستی یا قرص خودت را با الگوی تکرار دلخواه اضافه کن.</span></div>';
-          return;
-        }
+        if (!items.length) { els.routineList.innerHTML = '<div class="empty-state"><strong>هنوز روتینی ثبت نشده ✨</strong><span>اولین محصول پوستی یا قرص خودت را با الگوی تکرار دلخواه اضافه کن.</span></div>'; return; }
+        let lastGroup="";
         items.forEach(item => {
+          if((state.settings.routineSort||"time")==="time"){
+            const group=routineTimeGroup(item);if(group!==lastGroup){const heading=document.createElement("div");heading.className="routine-time-group";heading.textContent=routineTimeGroupLabel(group);els.routineList.append(heading);lastGroup=group;}
+          }
           const info = ROUTINE_TYPES[item.type] || ROUTINE_TYPES["skin-morning"];
           const isDue = dueIds.has(item.id);
           const done = isDue && Boolean(doneMap[item.id]);
           const nextDate = isDue ? today : nextRoutineDate(item,today);
-          const scheduleStatus = isDue
-            ? (english ? "Due today" : "نوبت امروز")
-            : nextDate
-              ? `${english ? "Next" : "نوبت بعدی"}: ${formatShortJalali(dateFromKey(nextDate))}`
-              : (english ? "Repeat schedule ended" : "تکرار پایان یافته");
+          const scheduleStatus = isDue ? (english ? "Due today" : "نوبت امروز") : nextDate ? `${english ? "Next" : "نوبت بعدی"}: ${formatShortJalali(dateFromKey(nextDate))}` : (english ? "Repeat schedule ended" : "تکرار پایان یافته");
           const row = document.createElement("article");
-          row.className = `routine-item${done ? " completed" : ""}${isDue ? "" : " not-due"}`;
-          row.innerHTML = `
-            <button class="routine-check" type="button" aria-label="${isDue ? (done ? "برداشتن تیک" : "انجام شد") : "امروز نوبت این روتین نیست"}" aria-pressed="${done}" ${isDue ? "" : "disabled"}>${done ? "✓" : (isDue ? "" : "↻")}</button>
-            <div class="routine-copy">
-              <span class="routine-title user-content"></span>
-              <div class="routine-meta">
-                <span class="routine-type">${info.icon} ${info.label}</span>
-                <span>🕒 ${formatTime(item.time)}</span>
-                <span class="routine-repeat">↻ ${routineRecurrenceLabel(item)}</span>
-                <span class="routine-next">${scheduleStatus}</span>
-              </div>
-            </div>
-            <div class="routine-actions">
-              <button class="routine-edit" type="button" aria-label="ویرایش کامل روتین" title="ویرایش">✎</button>
-              <button class="routine-delete" type="button" aria-label="حذف مورد" title="حذف">×</button>
-            </div>`;
+          row.className = `routine-item routine-task-card${done ? " completed" : ""}${isDue ? "" : " not-due"}`;
+          row.innerHTML = `<button class="routine-check check-btn" type="button" aria-label="${isDue ? (done ? "برداشتن تیک" : "انجام شد") : "امروز نوبت این روتین نیست"}" aria-pressed="${done}" ${isDue ? "" : "disabled"}>${done ? "♥" : (isDue ? "♡" : "↻")}</button><div class="routine-copy task-main"><div class="routine-heading task-title-row"><button class="routine-title task-title user-content" type="button" aria-pressed="${done}" aria-label="${isDue?(done?"برداشتن تیک روتین":"تکمیل روتین"):"ویرایش روتین"}"></button><span class="badge routine-type">${info.icon} ${info.label}</span><span class="badge repeat routine-repeat">↻ ${routineRecurrenceLabel(item)}</span>${item.reminderEnabled&&item.time?'<span class="badge routine-reminder-badge">🔔 اعلان</span>':''}</div><div class="routine-meta task-meta"><span class="task-time-chip">🕒 ${formatTime(item.time)}</span><span class="routine-next">${scheduleStatus}</span></div></div><div class="routine-actions task-actions"><button class="mini-btn routine-edit" type="button" aria-label="ویرایش کامل روتین" title="ویرایش">✎</button><button class="mini-btn danger routine-delete" type="button" aria-label="حذف مورد" title="حذف">×</button></div>`;
           $(".routine-title", row).textContent = item.title;
           $(".routine-check", row).addEventListener("click", () => toggleRoutineItem(item.id));
+          $(".routine-title",row).addEventListener("click",()=>isDue?toggleRoutineItem(item.id):openRoutineEdit(item.id));
           $(".routine-edit", row).addEventListener("click", () => openRoutineEdit(item.id));
           $(".routine-delete", row).addEventListener("click", () => deleteRoutineItem(item.id));
           els.routineList.append(row);
         });
+        applyLanguage(els.routineList);
       }
       function toggleRoutineItem(itemId) {
         const item = state.routineItems.find(entry => entry.id === itemId);
         if (!item || !recurrenceMatchesDate(item, localDateKey())) return;
-        const doneMap = routineDoneMap();
-        doneMap[itemId] = !doneMap[itemId];
-        saveState();
-        renderRoutine();
-        renderPerformance();
+        const doneMap = routineDoneMap();doneMap[itemId] = !doneMap[itemId];
+        if(doneMap[itemId])closeTaskNotification(`routine:${item.id}:${localDateKey()}`);
+        saveState();renderRoutine();renderPerformance();renderReminders();
       }
       function toggleRoutineRecurrenceFields() {
-        const mode = els.routineRecurrenceType.value;
-        els.routineRecurrenceIntervalField.hidden = mode !== "interval";
-        els.routineRecurrenceWeekdaysField.hidden = mode !== "custom";
-        if (mode === "custom" && !els.routineRecurrenceWeekdayInputs.some(input => input.checked)) {
-          const dateKey = parseJalaliDate(normalizeJalaliDateInputValue(els.routineStartDateInput.value,true));
-          const day = dateKey ? dateFromKey(dateKey).getDay() : new Date().getDay();
-          const match = els.routineRecurrenceWeekdayInputs.find(input => Number(input.value) === day);
-          if (match) match.checked = true;
-        }
+        const mode = els.routineRecurrenceType.value;els.routineRecurrenceIntervalField.hidden = mode !== "interval";els.routineRecurrenceWeekdaysField.hidden = mode !== "custom";
+        if (mode === "custom" && !els.routineRecurrenceWeekdayInputs.some(input => input.checked)) {const dateKey = parseJalaliDate(normalizeJalaliDateInputValue(els.routineStartDateInput.value,true));const day = dateKey ? dateFromKey(dateKey).getDay() : new Date().getDay();const match = els.routineRecurrenceWeekdayInputs.find(input => Number(input.value) === day);if (match) match.checked = true;}
       }
       function resetRoutineForm({focus=false} = {}) {
-        els.editingRoutineId.value = "";
-        els.routineTitleInput.value = "";
-        els.routineTypeInput.value = "skin-morning";
-        els.routineTimeInput.value = "";
-        els.routineRecurrenceType.value = "daily";
-        els.routineRecurrenceInterval.value = "2";
-        els.routineRecurrenceWeekdayInputs.forEach(input => { input.checked = false; });
-        els.routineStartDateInput.value = jalaliDateString(new Date());
-        els.routineEndDateInput.value = "";
-        [els.routineStartDateInput,els.routineEndDateInput].forEach(input => input.setAttribute("aria-invalid","false"));
-        els.routineStartDateError.textContent = "";
-        els.routineEndDateError.textContent = "";
-        els.cancelRoutineEditButton.hidden = true;
-        els.routineSubmitButton.textContent = uiLanguage() === "en" ? "＋ Add routine" : "＋ افزودن روتین";
-        toggleRoutineRecurrenceFields();
-        if (focus) els.routineTitleInput.focus();
+        els.editingRoutineId.value = "";els.routineTitleInput.value = "";els.routineTypeInput.value = "skin-morning";els.routineTimeInput.value = "";if(els.routineReminderEnabled)els.routineReminderEnabled.checked=false;els.routineRecurrenceType.value = "daily";els.routineRecurrenceInterval.value = "2";els.routineRecurrenceWeekdayInputs.forEach(input => { input.checked = false; });els.routineStartDateInput.value = jalaliDateString(new Date());els.routineEndDateInput.value = "";[els.routineStartDateInput,els.routineEndDateInput].forEach(input => input.setAttribute("aria-invalid","false"));els.routineStartDateError.textContent = "";els.routineEndDateError.textContent = "";els.cancelRoutineEditButton.hidden = true;els.routineSubmitButton.textContent = uiLanguage() === "en" ? "＋ Add routine" : "＋ افزودن روتین";toggleRoutineRecurrenceFields();if (focus) els.routineTitleInput.focus();
       }
       function openRoutineEdit(itemId) {
-        const item = state.routineItems.find(entry => entry.id === itemId);
-        if (!item) return;
-        els.editingRoutineId.value = item.id;
-        els.routineTitleInput.value = item.title;
-        els.routineTypeInput.value = item.type;
-        els.routineTimeInput.value = item.time ? toPersianDigits(item.time) : "";
-        els.routineRecurrenceType.value = item.mode;
-        els.routineRecurrenceInterval.value = String(item.interval || 2);
-        els.routineRecurrenceWeekdayInputs.forEach(input => { input.checked = item.weekdays.includes(Number(input.value)); });
-        els.routineStartDateInput.value = jalaliDateString(dateFromKey(item.startDate));
-        els.routineEndDateInput.value = item.endDate ? jalaliDateString(dateFromKey(item.endDate)) : "";
-        [els.routineStartDateInput,els.routineEndDateInput].forEach(input => input.setAttribute("aria-invalid","false"));
-        els.routineStartDateError.textContent = "";
-        els.routineEndDateError.textContent = "";
-        els.cancelRoutineEditButton.hidden = false;
-        els.routineSubmitButton.textContent = uiLanguage() === "en" ? "Save changes" : "ذخیره تغییرات";
-        toggleRoutineRecurrenceFields();
-        els.routineForm.scrollIntoView({behavior:"smooth",block:"center"});
-        setTimeout(() => { els.routineTitleInput.focus(); els.routineTitleInput.select(); }, 250);
+        const item = state.routineItems.find(entry => entry.id === itemId);if (!item) return;
+        els.editingRoutineId.value = item.id;els.routineTitleInput.value = item.title;els.routineTypeInput.value = item.type;els.routineTimeInput.value = item.time ? toPersianDigits(item.time) : "";if(els.routineReminderEnabled)els.routineReminderEnabled.checked=Boolean(item.reminderEnabled);els.routineRecurrenceType.value = item.mode;els.routineRecurrenceInterval.value = String(item.interval || 2);els.routineRecurrenceWeekdayInputs.forEach(input => { input.checked = item.weekdays.includes(Number(input.value)); });els.routineStartDateInput.value = jalaliDateString(dateFromKey(item.startDate));els.routineEndDateInput.value = item.endDate ? jalaliDateString(dateFromKey(item.endDate)) : "";[els.routineStartDateInput,els.routineEndDateInput].forEach(input => input.setAttribute("aria-invalid","false"));els.routineStartDateError.textContent = "";els.routineEndDateError.textContent = "";els.cancelRoutineEditButton.hidden = false;els.routineSubmitButton.textContent = uiLanguage() === "en" ? "Save changes" : "ذخیره تغییرات";toggleRoutineRecurrenceFields();els.routineForm.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(() => { els.routineTitleInput.focus(); els.routineTitleInput.select(); }, 250);
       }
       function readRoutineScheduleFromForm(startDate) {
-        const mode = els.routineRecurrenceType.value;
-        const interval = clamp(Math.round(Number(els.routineRecurrenceInterval.value) || 2),2,365);
-        const weekdays = els.routineRecurrenceWeekdayInputs.filter(input => input.checked).map(input => Number(input.value));
-        if (mode === "custom" && !weekdays.length) {
-          showToast("حداقل یک روز هفته را برای تکرار انتخاب کن.","تکرار روتین");
-          els.routineRecurrenceWeekdaysField.scrollIntoView({block:"center"});
-          return false;
-        }
-        let endDate = null;
-        if (els.routineEndDateInput.value.trim()) {
-          els.routineEndDateInput.value = normalizeJalaliDateInputValue(els.routineEndDateInput.value,true);
-          if (!validateJalaliDateInput(els.routineEndDateInput,els.routineEndDateError,false)) return false;
-          endDate = parseJalaliDate(els.routineEndDateInput.value);
-          if (endDate && endDate < startDate) {
-            els.routineEndDateError.textContent = "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.";
-            els.routineEndDateInput.setAttribute("aria-invalid","true");
-            els.routineEndDateInput.focus();
-            return false;
-          }
-        }
-        const start = dateFromKey(startDate);
-        return {mode,interval,weekdays,monthDay:toJalali(start).jd,endDate};
+        const mode = els.routineRecurrenceType.value;const interval = clamp(Math.round(Number(els.routineRecurrenceInterval.value) || 2),2,365);const weekdays = els.routineRecurrenceWeekdayInputs.filter(input => input.checked).map(input => Number(input.value));
+        if (mode === "custom" && !weekdays.length) {showToast("حداقل یک روز هفته را برای تکرار انتخاب کن.","تکرار روتین");els.routineRecurrenceWeekdaysField.scrollIntoView({block:"center"});return false;}
+        let endDate = null;if (els.routineEndDateInput.value.trim()) {els.routineEndDateInput.value = normalizeJalaliDateInputValue(els.routineEndDateInput.value,true);if (!validateJalaliDateInput(els.routineEndDateInput,els.routineEndDateError,false)) return false;endDate = parseJalaliDate(els.routineEndDateInput.value);if (endDate && endDate < startDate) {els.routineEndDateError.textContent = "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.";els.routineEndDateInput.setAttribute("aria-invalid","true");els.routineEndDateInput.focus();return false;}}
+        const start = dateFromKey(startDate);return {mode,interval,weekdays,monthDay:toJalali(start).jd,endDate};
       }
       function deleteRoutineItem(itemId) {
-        const item = state.routineItems.find(entry => entry.id === itemId);
-        if (!item || !confirm(`«${item.title}» از روتین حذف شود؟ سوابق تیک آن هم پاک می‌شود.`)) return;
-        state.routineItems = state.routineItems.filter(entry => entry.id !== itemId);
-        Object.values(state.routineChecksByDate).forEach(day => { if (day && typeof day === "object") delete day[itemId]; });
-        if (els.editingRoutineId.value === itemId) resetRoutineForm();
-        saveState();
-        renderRoutine();
-        renderPerformance();
-        showToast("مورد و سوابق آن از روتین حذف شد.","روتین مراقبتی");
+        const item = state.routineItems.find(entry => entry.id === itemId);if (!item || !confirm(`«${item.title}» از روتین حذف شود؟ سوابق تیک آن هم پاک می‌شود.`)) return;
+        state.routineItems = state.routineItems.filter(entry => entry.id !== itemId);Object.values(state.routineChecksByDate).forEach(day => { if (day && typeof day === "object") delete day[itemId]; });Object.values(state.routineNotificationsByDate||{}).forEach(day=>{if(day&&typeof day==="object")delete day[itemId];});if (els.editingRoutineId.value === itemId) resetRoutineForm();saveState();renderRoutine();renderPerformance();renderReminders();showToast("مورد و سوابق آن از روتین حذف شد.","روتین مراقبتی");
       }
       function saveRoutineItem(event) {
-        event.preventDefault();
-        const title = els.routineTitleInput.value.trim();
-        els.routineStartDateInput.value = normalizeJalaliDateInputValue(els.routineStartDateInput.value,true);
-        const startValid = validateJalaliDateInput(els.routineStartDateInput,els.routineStartDateError,true);
-        const startDate = startValid ? parseJalaliDate(els.routineStartDateInput.value) : null;
-        if (!title || !startDate) {
-          if (!title) els.routineTitleInput.focus(); else els.routineStartDateInput.focus();
-          showToast("عنوان و تاریخ شروع معتبر لازم است.","اطلاعات ناقص");
-          return;
-        }
-        const schedule = readRoutineScheduleFromForm(startDate);
-        if (schedule === false) return;
-        const editingId = els.editingRoutineId.value;
-        const existing = editingId ? state.routineItems.find(entry => entry.id === editingId) : null;
-        const payload = normalizeRoutineItem({
-          id: existing?.id,
-          title,
-          type: els.routineTypeInput.value,
-          time: readLocalizedTimeInput(els.routineTimeInput),
-          startDate,
-          endDate: schedule.endDate,
-          mode: schedule.mode,
-          interval: schedule.interval,
-          weekdays: schedule.weekdays,
-          monthDay: schedule.monthDay,
-          excludedDates: existing?.excludedDates || [],
-          createdAt: existing?.createdAt || nowIso(),
-          updatedAt: nowIso()
-        });
-        if (existing) {
-          const index = state.routineItems.findIndex(entry => entry.id === existing.id);
-          state.routineItems[index] = payload;
-        } else {
-          state.routineItems.push(payload);
-        }
-        saveState();
-        resetRoutineForm();
-        renderRoutine();
-        renderPerformance();
-        els.routineTitleInput.focus();
-        showToast(existing ? "روتین و الگوی تکرارش ویرایش شد." : "روتین تکرارشونده اضافه شد ✨","روتین مراقبتی");
+        event.preventDefault();const title = els.routineTitleInput.value.trim();els.routineStartDateInput.value = normalizeJalaliDateInputValue(els.routineStartDateInput.value,true);const startValid = validateJalaliDateInput(els.routineStartDateInput,els.routineStartDateError,true);const startDate = startValid ? parseJalaliDate(els.routineStartDateInput.value) : null;
+        if (!title || !startDate) {if (!title) els.routineTitleInput.focus(); else els.routineStartDateInput.focus();showToast("عنوان و تاریخ شروع معتبر لازم است.","اطلاعات ناقص");return;}
+        const schedule = readRoutineScheduleFromForm(startDate);if (schedule === false) return;const time=readLocalizedTimeInput(els.routineTimeInput);const reminderEnabled=Boolean(els.routineReminderEnabled?.checked);if(reminderEnabled&&!time){showToast("برای اعلان روتین، ساعت انجام را وارد کن.","اعلان روتین");els.routineTimeInput.focus();return;}
+        const editingId = els.editingRoutineId.value;const existing = editingId ? state.routineItems.find(entry => entry.id === editingId) : null;
+        const payload = normalizeRoutineItem({id: existing?.id,title,type: els.routineTypeInput.value,time,reminderEnabled,startDate,endDate: schedule.endDate,mode: schedule.mode,interval: schedule.interval,weekdays: schedule.weekdays,monthDay: schedule.monthDay,excludedDates: existing?.excludedDates || [],createdAt: existing?.createdAt || nowIso(),updatedAt: nowIso()});
+        if (existing) {const index = state.routineItems.findIndex(entry => entry.id === existing.id);state.routineItems[index] = payload;} else state.routineItems.push(payload);
+        saveState();resetRoutineForm();renderRoutine();renderPerformance();renderReminders();els.routineTitleInput.focus();showToast(existing ? "روتین، زمان و اعلان آن ویرایش شد." : "روتین تکرارشونده اضافه شد ✨","روتین مراقبتی");
       }
 
       function renderNotificationStatus() {
@@ -6111,10 +6844,11 @@
         const p=Notification.permission;els.notificationStatus.textContent=p==="granted"?"اعلان مرورگر و داخل برنامه فعال است.":p==="denied"?"اعلان مرورگر مسدود است؛ اعلان داخل برنامه فعال می‌ماند.":"برای اعلان سیستمی، اجازه مرورگر را فعال کن.";
         els.notificationButton.textContent=p==="granted"?"✓":"🔔";els.notificationTopButton.textContent=p==="granted"?"✓":"🔔";
       }
-      function renderAll(){ensureRecurringOccurrences();renderTheme();renderHeaderAndHero();renderAtmosphere();renderRoutine();renderRolloverBanner();renderTemplates();renderPlanner();renderTasks();renderTimeline();renderReminders();renderGoals();renderReflection();renderAchievements();updateTodayPerformanceHistory();renderPerformance();updateTodayWeatherHistory();renderYearAtmosphere();renderGoogleCalendarStatus();saveState();}
+      function renderAll(){ensureRecurringOccurrences();renderTheme();renderFreeDay();renderHeaderAndHero();renderAtmosphere();renderRoutine();renderRolloverBanner();renderTemplates();renderPlanner();renderTasks();renderTimeline();renderReminders();renderGoals();renderReflection();renderAchievements();updateTodayPerformanceHistory();renderPerformance();updateTodayWeatherHistory();renderYearAtmosphere();renderGoogleCalendarStatus();saveState();}
 
 
       const I18N_FA_TO_EN = {"اعلان گوشی":"Phone notifications","دریافت یادآوری حتی وقتی Pinky Daily Plan بسته است":"Receive reminders even when Pinky Daily Plan is closed","وضعیت اعلان گوشی در حال بررسی است...":"Checking phone notification status...","فعال‌سازی اعلان گوشی":"Enable phone notifications","ارسال اعلان آزمایشی":"Send test notification","این قابلیت پس از انتشار روی HTTPS و ثبت کلیدهای VAPID در Supabase Edge Functions کار می‌کند. کلید خصوصی داخل برنامه ذخیره نمی‌شود.":"This feature works after publishing on HTTPS and adding the VAPID keys in Supabase Edge Function secrets. The private key is never stored in the app.","اعلان روی گوشی فعال است؛ حتی وقتی سایت بسته باشد اعلان می‌رسد.":"Phone notifications are enabled and can arrive even when the site is closed.","اعلان روی گوشی غیرفعال است.":"Phone notifications are disabled.","برای فعال‌سازی، ابتدا سایت را روی GitHub Pages منتشر و Edge Functions را در Supabase فعال کن.":"Publish the site on GitHub Pages and deploy the Supabase Edge Functions before enabling notifications.","این مرورگر از اعلان پوش پشتیبانی نمی‌کند.":"This browser does not support push notifications.","روی آیفون، ابتدا Pinky Daily Plan را از Safari به صفحه اصلی اضافه کن و سپس از آیکون نصب‌شده باز کن.":"On iPhone, first add Pinky Daily Plan to the Home Screen from Safari, then open it from the installed icon.","اجازه‌ی اعلان داده نشد.":"Notification permission was not granted.","ثبت اشتراک اعلان در سرور ناموفق بود.":"Saving the notification subscription on the server failed.","اعلان گوشی فعال شد.":"Phone notifications were enabled.","فعال‌سازی اعلان گوشی ممکن نشد؛ تنظیمات Supabase Edge Functions را بررسی کن.":"Phone notifications could not be enabled. Check the Supabase Edge Function configuration.","اعلان آزمایشی ارسال شد.":"The test notification was sent.","ارسال اعلان آزمایشی ناموفق بود.":"Sending the test notification failed.","ابتدا اعلان گوشی را فعال کن.":"Enable phone notifications first.","تنظیمات VAPID سرور کامل نیست.":"The server VAPID configuration is incomplete.","اشتراک اعلان پیدا نشد؛ دوباره فعالش کن.":"No notification subscription was found. Enable it again.","در حال فعال‌سازی...":"Enabling...","در حال ارسال...":"Sending...","✓ فعال است":"✓ Enabled","عملکرد امروز = همه فعالیت‌های تکمیل‌شده ÷ همه فعالیت‌های ثبت‌شده امروز. از گزارش هفتگی تا سالانه، فقط فعالیت‌های ۲ تا ۵ امتیازی در صورت و مخرج محاسبه می‌شوند و کارهای ۱ امتیازی کنار گذاشته می‌شوند. موارد لینک‌شده دوبار شمرده نمی‌شوند؛ «رسیدگی به خودم» نیز جداگانه از روتین پوست صبح، پوست شب و قرص یا مکمل محاسبه می‌شود.":"Today's performance equals completed activities divided by all activities recorded today. Weekly through yearly reports include only 2–5 point activities and exclude 1-point tasks. Linked items are not counted twice, and self-care is calculated separately from morning skin care, night skin care, and medicine or supplements.","موارد بر اساس ساعت مرتب می‌شوند؛ با دکمه ساعت می‌توانی زمان هر مورد را ویرایش کنی. تیک‌ها فقط برای همان روز ثبت می‌شوند. نام و زمان دارو را مطابق دستور پزشک یا نسخه خودت وارد کن.":"Items are ordered by time. Use the clock button to edit each item's time. Checks are saved only for that day. Enter medicine names and times according to your own prescription or medical instructions.","روی آیفون: ابتدا در سافاری دکمه اشتراک‌گذاری را بزن، «افزودن به صفحه اصلی» را انتخاب کن، سپس Pinky Daily Plan را از همان آیکون صفحه اصلی باز کن تا اعلان گوشی فعال شود.":"On iPhone: in Safari, tap Share, choose “Add to Home Screen,” then open Pinky Daily Plan from its Home Screen icon to enable phone notifications.","توکن دسترسی فقط در حافظه همین نشست نگه‌داری می‌شود و در حافظه دائمی مرورگر ذخیره نمی‌شود. برای اتصال، برنامه باید روی نشانی امن یا میزبان محلی اجرا شود.":"The access token is kept only for this session and is not stored permanently. The app must run on a secure URL or local host to connect.","اعلان داخل برنامه فقط وقتی سایت بازه کار می‌کند؛ برای اعلان روی گوشی حتی وقتی سایت بسته است، اعلان پوش رو فعال کن یا به تقویم گوشی اضافه کن.":"In-app reminders work while the site is open. For phone alerts when it is closed, enable push notifications or add reminders to your phone calendar.","عملکردت عالی بوده، ولی یادت نره یکی از مهم‌ترین کارها همیشه مراقبت از خودته؛ این پیشرفت رو با کمی استراحت و مهربانی با خودت جشن بگیر.":"Your performance was excellent, but remember that caring for yourself is always important. Celebrate this progress with rest and kindness.","این بازه، انرژی‌ات بیشتر پایین بوده؛ لطفاً برای استراحت و مراقبت از خودت هم وقت بگذار، نه فقط برای انجام کارها.":"Your energy was mostly low in this period. Make time for rest and self-care, not only tasks.","کارهای تیک‌خورده بعد از پایان روز از فهرست روزانه کنار می‌روند، اما مرحله مرتبط و تاریخچه عملکرد باقی می‌ماند.":"Completed tasks leave the daily list after the day ends, while the related milestone and performance history remain.","در این بازه فشار زیادی روی خودت نذار؛ گاهی درصد پایین یعنی وقتشه به‌جای کار بیشتر، از خودت مراقبت بیشتری کنی.":"Do not put too much pressure on yourself in this period. A low percentage can mean it is time for more self-care, not more work.","امروز با همه کارها محاسبه می‌شود؛ گزارش هفتگی تا سالانه فقط کارهای ۲ تا ۵ امتیازی را حساب می‌کند.":"Today includes all tasks; weekly through yearly reports include only 2–5 point tasks.","امروز یک برنامه گرم، ساده و کم‌فشار مناسب‌تر است. یک تمرکز آرام با فضای تنفس بیشتر انتخاب کن.":"A warm, simple, low-pressure plan is best today. Choose gentle focus with more breathing room.","هدف‌های بزرگ را به قدم‌های کوچک تبدیل کن و با «+ امروز» هر قدم را به کارهای روزانه بفرست.":"Break big goals into small steps and use “+ Today” to send each step to daily tasks.","درصد کلی از مجموع نوبت‌های روتین پوست صبح، پوست شب و قرص یا مکمل تا امروز محاسبه می‌شود.":"The overall percentage is calculated from morning skin care, night skin care, and medicine or supplement sessions through today.","برای این هفته هنوز فعالیت یا روتین مراقبتی ثبت نشده است؛ درصد ساختگی نمایش داده نمی‌شود.":"No activity or self-care routine has been recorded this week, so no artificial percentage is shown.","هر روز، در کنار کارها و اهداف، یک لحظه هم برای مراقبت از خودت و آرامش ذهنت بگذار.":"Each day, alongside tasks and goals, leave a moment for self-care and peace of mind.","این مرورگر اعلان سیستمی را پشتیبانی نمی‌کند؛ اعلان داخل برنامه همچنان فعال است.":"This browser does not support system notifications; in-app alerts remain active.","کار ساده امروز را سریع ثبت کن؛ برای تاریخ، ساعت و اولویت از دکمه ＋ استفاده کن.":"Quickly add a simple task for today; use the ＋ button for date, time, and priority.","ساخت گزارش ممکن نشد. اتصال اینترنت را برای بارگذاری ابزار ساخت گزارش بررسی کن.":"The report could not be created. Check your internet connection so the report tools can load.","مرور آرام رابطه‌ی آب‌وهوا و مسیر شخصی تو؛ فقط وقتی داده کافی وجود داشته باشد.":"A gentle look at weather and your personal journey, shown only when enough data exists.","آب‌وهوای آنلاین فعلاً در دسترس نیست؛ تم با فصل و زمان روز ادامه می‌دهد.":"Online weather is temporarily unavailable; the theme will continue using season and time of day.","ساعت جدید را به شکل 08:30 وارد کن. برای حذف ساعت، کادر را خالی بگذار:":"Enter the new time as 08:30. Leave it blank to remove the time:","امروز یک برنامه سبک و آرام مناسب‌تر است. فقط ۳ کار مهم را انتخاب کن.":"A light and calm plan is best today. Choose only 3 important tasks.","ابتدا فصل را انتخاب کن؛ سپس فقط تم‌های همان فصل نمایش داده می‌شوند.":"Choose a season first; only its themes will then appear.","شرایط هوا جدی‌تر است؛ فقط کارهای ضروری را نگه دار و مراقب خودت باش.":"Weather conditions are more serious; keep only essential tasks and take care of yourself.","امروز انرژی و روشنایی خوبی داری؛ برای یک جلسه تمرکز عمیق مناسب است.":"You have good energy and brightness today; it is suitable for a deep-focus session.","هوا روشن است؛ اگر انرژی داری، یک کار مهم را کمی زودتر انجام بده.":"The weather is bright. If you have the energy, do one important task a little earlier.","برای اتصال، Pinky Daily Plan را از میزبان محلی یا یک نشانی امن باز کن.":"Open Pinky Daily Plan from a secure URL or local host to connect.","دریافت تازه ممکن نشد؛ آخرین داده ذخیره‌شده نمایش داده می‌شود.":"A fresh update failed; the last saved data is shown.","در حالت خودکار، ظاهر برنامه با فصل و زمان روز هماهنگ می‌شود.":"In automatic mode, the app follows the season and time of day.","این گزارش از داده‌های ذخیره‌شده محلی Pinky Daily Plan ساخته شده است.":"This report was created from data stored locally in Pinky Daily Plan.","موقعیت دقیق در دسترس نبود؛ موقعیت تقریبی اینترنت استفاده شد.":"Precise location was unavailable, so approximate internet location was used.","اینترنت قطع است؛ آخرین آب‌وهوای ذخیره‌شده نمایش داده می‌شود.":"You are offline; the last saved weather is shown.","هنوز داده کافی برای مقایسه این هفته با هفته قبل وجود ندارد.":"There is not enough data yet to compare this week with last week.","هوای بارانی برای یک جلسه تمرکز آرام ۴۵ دقیقه‌ای مناسب است.":"Rainy weather suits a calm 45-minute focus session.","مراقبت‌های صبح و شب و قرص‌های روزانه‌ات را ثبت و تیک بزن.":"Add and check off your morning and night care and daily medicines.","امروز آرام‌تر پیش برو. مراقبت از خودت هم یک کار مهم است.":"Move more slowly today. Taking care of yourself is important too.","هوا گرم است؛ کارهای مهم را در ساعت‌های خنک‌تر انجام بده.":"It is warm; do important tasks during cooler hours.","در این بازه هنوز فعالیتی برای محاسبه درصد ثبت نشده است.":"No activity has been recorded in this period for percentage calculation.","یک برنامه‌ی متعادل با فضای کافی برای استراحت انتخاب کن.":"Choose a balanced plan with enough room for rest.","اعلان مرورگر مسدود است؛ اعلان داخل برنامه فعال می‌ماند.":"Browser notifications are blocked; in-app alerts remain active.","موقعیت زنده در دسترس نیست؛ شهر انتخابی استفاده می‌شود.":"Live location is unavailable; the selected city will be used.","سطح انرژی را انتخاب کن تا یک پیشنهاد آرام دریافت کنی.":"Choose your energy level to receive a gentle suggestion.","اتصال اختیاری است و Pinky Daily Plan بدون آن کامل کار می‌کند.":"Connection is optional; Pinky Daily Plan works fully without it.","یک تجربه‌ی تازه یا حرکت کوچک بیرون از روال انتخاب کن.":"Choose a new experience or one small step outside your routine.","آرام‌تر پیش برو؛ همه‌چیز لازم نیست امروز تمام شود 🍂":"Move more slowly; not everything needs to be finished today 🍂","باران تابستانی هم فرصتی برای مکث و تازه‌شدن است 🌦️":"Summer rain is a chance to pause and refresh 🌦️","هوای سرد و بارانی؛ امروز آرام و با مراقبت پیش برو.":"Cold and rainy weather—move gently and take care of yourself today.","اعلان روی گوشی (حتی وقتی سایت بسته است) غیرفعاله.":"Phone notifications are disabled when the site is closed.","زبان نوشته‌ها و گزارش‌ها را انتخاب کن؛ چیدمان صفحه ثابت می‌ماند.":"Choose the language for text and reports; the page layout stays fixed.","امروز آرام‌تر پیش برو. فقط ۳ کار کوچک انتخاب کن.":"Take it slower today. Choose only 3 small tasks.","با خودت همان‌قدر مهربان باش که با هدفت جدی هستی.":"Be as kind to yourself as you are committed to your goal.","اولین محصول پوستی یا قرص روزانه‌ات را اضافه کن.":"Add your first skin-care item or daily medicine.","بدون قضاوت، فقط چند دقیقه برای دیدن مسیر امروز.":"No judgment—just a few minutes to notice today's journey.","ظاهر و حرکت برنامه را مطابق سلیقه‌ات تنظیم کن.":"Adjust the app's appearance and motion to your preference.","هنوز روز برنامه‌داری در این بازه ثبت نشده است.":"No planned day has been recorded in this period yet.","کارهای زمان‌دار به‌صورت خودکار مرتب می‌شوند.":"Timed tasks are sorted automatically.","یک روز روشن زمستانی برای یک قدم شفاف و آرام.":"A bright winter day for one clear, calm step.","یک روز آرام زمستانی برای تمرکز نرم و پیوسته.":"A calm winter day for gentle, steady focus.","یک شب آرام زمستانی برای استراحت و جمع‌بندی 🌙":"A quiet winter night for rest and reflection 🌙","برای اعلان سیستمی، اجازه مرورگر را فعال کن.":"Enable browser permission for system notifications.","Pinky Daily Plan: داده‌های ذخیره‌شده خوانده نشدند.":"Pinky Daily Plan could not read the saved data.","نشانه‌های کوچک پیشرفت؛ بدون رقابت و فشار.":"Small signs of progress, without competition or pressure.","برای یادآوری، تاریخ و ساعت معتبر وارد کن.":"Enter a valid reminder date and time.","این مرورگر از اعلان پوش پشتیبانی نمی‌کند.":"This browser does not support push notifications.","امروز برای یک جلسه تمرکز عمیق مناسب است.":"Today is suitable for a deep-focus session.","حتی یک قدم کوچک هم ارزش ثبت کردن دارد...":"Even a small step is worth recording...","هنوز روتینی برای این هفته ثبت نشده است.":"No routine has been recorded for this week yet.","یک کار روشن، بهتر از ده تصمیم مبهم است.":"One clear task is better than ten vague decisions.","یک چیز غیرضروری را از برنامه‌ات حذف کن.":"Remove one unnecessary thing from your plan.","ذخیره‌سازی در این مرورگر در دسترس نیست.":"Browser storage is unavailable.","همراه آرام برنامه‌ریزی و پیشرفت روزانه":"A gentle companion for daily planning and progress","امروز جهان کمی آرام‌تر و سفیدتر است 🌨️":"The world feels a little calmer and whiter today 🌨️","ابتدا شناسه کاربری اوت‌اَث را وارد کن.":"Enter the OAuth client ID first.","روتین پوست صبح، پوست شب و قرص یا مکمل":"Morning and night skin care, medicine or supplements","گزارش در اندازه آ۳ آماده و دانلود شد.":"The A3 report is ready and has been downloaded.","افزودن همه‌ی یادآوری‌ها به تقویم گوشی":"Add all reminders to phone calendar","مرور روزانه و استراحت را جدی‌تر بگیر.":"Give daily reflection and rest more attention.","دسترسی منقضی شده است؛ دوباره متصل شو.":"Access expired; reconnect.","امروز برای یک قدم بزرگ انرژی داری ☀️":"You have energy for one big step today ☀️","موقعیت تقریبی اینترنتی در دسترس نیست":"Approximate internet location is unavailable","آب‌وهوای زنده Pinky Daily Plan در دسترس نیست":"Pinky Daily Plan live weather is unavailable","اعلان مرورگر و داخل برنامه فعال است.":"Browser and in-app notifications are enabled.","۷ روز متوالی حداقل یک کار تکمیل‌شده":"Complete at least one task for 7 consecutive days","یک کار مهم و چند کار سبک انتخاب کن.":"Choose one important task and a few light ones.","تاریخ باید به شکل سال/ماه/روز باشد.":"The date must be in year/month/day format.","عملکرد کارهای روزانه امروز صفر درصد":"Today's daily task performance: zero percent","Pinky Daily Plan: ذخیره در مرورگر ممکن نشد.":"Pinky Daily Plan could not save data in the browser.","تم با فصل و زمان روز هماهنگ می‌شود.":"The theme follows the season and time of day.","ابزار اتصال تقویم گوگل بارگذاری نشد":"Google Calendar connection tool could not load","بارگذاری ابزار ساخت گزارش ممکن نشد":"The report tool could not be loaded","یک روز آرام برای تمرکز و فکر کردن.":"A calm day for focus and thought.","عنوان و تاریخ شمسی معتبر لازم است.":"A valid title and Jalali date are required.","از کارهای روزانه امروز برداشته شد.":"Removed from today's daily tasks.","قرار نیست همه‌چیز امروز تمام شود.":"Not everything has to be finished today.","اولین قدم را همین پایین اضافه کن.":"Add the first step below.","یک عادت کوچک و تازه را امتحان کن.":"Try one small new habit.","به کارهای روزانه امروز اضافه شد ♡":"Added to today's daily tasks ♡","چه چیزی انرژی بیشتری از تو گرفت؟":"What took most of your energy?","امشب می‌توانی کمی آرام‌تر باشی 🌙":"You can slow down a little tonight 🌙","حالت تیره Pinky Daily Plan اعمال می‌شود.":"Pinky Daily Plan dark mode will be applied.","حالت روشن Pinky Daily Plan اعمال می‌شود.":"Pinky Daily Plan light mode will be applied.","تم و تنظیمات با موفقیت ذخیره شد.":"Theme and settings were saved successfully.","نمایش کارهای Pinky Daily Plan ناموفق بود":"Pinky Daily Plan could not display tasks","هنوز موردی در این دسته ثبت نشده":"No items recorded in this category yet","امروز فقط یک قدم کوچک کافی است.":"One small step is enough today.","در حال آماده‌کردن فضای امروز...":"Preparing today's atmosphere...","اعلان‌های داخل برنامه فعال‌اند.":"In-app notifications are enabled.","امروز به چه چیزی افتخار می‌کنی؟":"What are you proud of today?","مثلاً: ضدآفتاب یا قرص ویتامین D":"For example: sunscreen or vitamin D","اطلاعات موقعیت تقریبی کامل نیست":"Approximate location data is incomplete","اجازه دسترسی به موقعیت داده نشد":"Location permission was denied","اطلاعات آب‌وهوا کامل دریافت نشد":"Weather data was incomplete","اتصال تقویم گوگل در دسترس نیست.":"Google Calendar connection is unavailable.","Pinky Daily Plan 1.5.0 | آماده اعلان Supabase":"Pinky Daily Plan 1.5.0 | Supabase Push Ready","برداشتن از کارهای روزانه امروز":"Remove from today's daily tasks","یافتن نام موقعیت در دسترس نیست":"Location name is unavailable","این مرحله قبلاً تکمیل شده است.":"This milestone is already completed.","ثبت سریع یک کار برای امروز...":"Quickly add a task for today...","یک هدف آرام، با قدم‌های روشن.":"A gentle goal with clear steps.","افزودن به کارهای روزانه امروز":"Add to today's daily tasks","هنوز کاری برای امروز نداری 🌸":"You have no tasks for today yet 🌸","ابزار موردنیاز در دسترس نیست":"The required tool is unavailable","باران هم بخشی از رشد است 🌧️🌱":"Rain is part of growth too 🌧️🌱","در حال دریافت موقعیت دقیق...":"Getting precise location...","ابتدا تقویم گوگل را متصل کن.":"Connect Google Calendar first.","پیشرفت آرام هم پیشرفت است 🌸":"Gentle progress is still progress 🌸","کاری با این فیلتر پیدا نشد.":"No task matches this filter.","بازگرداندن کار به حالت فعال":"Return task to active","سال من در حال‌وهوای روزها 🌸":"My year through daily atmospheres 🌸","موقعیت دستگاه در دسترس نیست":"Device location is unavailable","اتصال تقویم گوگل ناموفق بود":"Google Calendar connection failed","همگام‌سازی تقویم ناموفق بود":"Calendar sync failed","امتیاز کارهای روزانه امروز":"Today's daily-task points","گزارش هفتگی رسیدگی به خودم":"Weekly self-care report","مراقبت از پوست، قرص و مکمل":"Skin care, medicine & supplements","ماه باید بین ۱ تا ۱۲ باشد.":"Month must be between 1 and 12.","فعال‌سازی اعلان‌های مرورگر":"Enable browser notifications","مثلاً تکمیل پروژه تحقیقاتی":"For example: complete the research project","این هدف چرا برایت مهم است؟":"Why is this goal important to you?","به روتین روزانه اضافه شد ✨":"Added to the daily routine ✨","فقط کارهای ۲ تا ۵ امتیازی":"Only 2–5 point tasks","میانگین روزهای برنامه‌دار":"Average on planned days","به خودم افتخار می‌کنم چون":"I am proud of myself because","فیلتر دیگری را امتحان کن.":"Try another filter.","🌙 پایان روز و مرور روزانه":"🌙 End-of-day reflection","انتخاب سریع تاریخ یادآوری":"Quick reminder date","یک شروع تازه برای امروز 🌱":"A fresh start for today 🌱","موقعیت دقیق در دسترس نیست":"Precise location is unavailable","عنوان مرحله را ویرایش کن:":"Edit the milestone title:","افزودن همه به تقویم گوشی":"Add all to phone calendar","انجام‌شده / کل فعالیت‌ها":"Completed / total activities","روزهای دارای مرور روزانه":"Days with a daily reflection","بعدازظهر زمستانی بخیر ❄️":"Good winter afternoon ❄️","یک دستاورد آرام باز شد ✨":"A gentle achievement was unlocked ✨","اتصال تقویم گوگل قطع شد.":"Google Calendar disconnected.","کار با موفقیت ویرایش شد.":"Task updated successfully.","دریافت PDF در اندازه A3":"Download A3 PDF","هنوز هدفی ثبت نشده است.":"No goal has been added yet.","فردا مهم‌ترین کار چیست؟":"What is tomorrow's most important task?","تداوم و دستاوردهای آرام":"Gentle streaks and achievements","مثلاً نوشتن مقدمه مقاله":"For example: write the article introduction","شناسه کاربری تقویم گوگل":"Google Calendar client ID","با خودت مهربان‌تر باش 🧣":"Be gentler with yourself 🧣","جست‌وجوی شهر ناموفق بود":"City search failed","انرژی امروزت چطور است؟":"How is your energy today?","فعال‌سازی اعلان مرورگر":"Enable browser notifications","بدون فعالیت واجد شرایط":"No eligible activities","۳ روز پشت سر هم فعالیت":"Active for 3 days in a row","هنوز روتینی ثبت نشده ✨":"No routine has been added yet ✨","ثبت نام برای سلام شخصی":"Set your name for a personal greeting","تغییر حالت روشن و تیره":"Switch light and dark mode","نمودار روند درصد تکمیل":"Completion-rate trend chart","کار نزدیک به زمان فعلی":"Task near the current time","استفاده از موقعیت فعلی":"Use current location","بخش‌های اصلی Pinky Daily Plan":"Main Pinky Daily Plan sections","دسته‌بندی / هدف مرتبط":"Category / related goal","اولین مرحله (اختیاری)":"First milestone (optional)","هنوز داده‌ای ثبت نشده":"No data recorded yet","ساخت گزارش ناموفق بود":"Report creation failed","تکمیل کار با تیک قلبی":"Complete task with heart check","روتین پوست و داروها ✨":"Skin care & medicine routines ✨","فقط یک اولویت روشن...":"Just one clear priority...","انتخاب سریع تاریخ کار":"Quick task date","انتخاب دو مرحله‌ای تم":"Two-step theme selection","بعدازظهر برفی بخیر 🌨️":"Good snowy afternoon 🌨️","رویداد در حال برگزاری":"Event in progress","موقعیت تقریبی اینترنت":"Approximate internet location","ساعت این مورد حذف شد.":"This item's time was removed.","مورد از روتین حذف شد.":"Item removed from the routine.","تغییر زبان به انگلیسی":"Switch to English","کار روزانه انجام‌شده":"daily tasks completed","گزارش رسیدگی به خودم":"Self-care report","روزهای سپری‌شده بازه":"Elapsed days in period","موارد رسیدگی به خودم":"Self-care items","در حال ساخت گزارش...":"Creating report...","بازیابی نسخه پشتیبان":"Restore backup","شاخص فرابنفش لحظه‌ای":"Current UV index","یک قدم کوچک شروع کن.":"Start with one small step.","هنوز مرحله‌ای ندارد.":"No milestones yet.","افزودن به تقویم گوشی":"Add to phone calendar","سال شمسی نامعتبر است":"Invalid Jalali year","فعال‌سازی اعلان گوشی":"Enable phone notifications","تقویم گوگل — اختیاری":"Google Calendar — optional","شناسه کاربری اوت‌اَث":"OAuth client ID","دریافت موقعیت دستگاه":"Use device location","روزهای برتر این بازه":"Best days in this period","مثلاً مطالعه ۵ مقاله":"For example: read 5 articles","محافظت‌شده و کم‌فشار":"Protected and low pressure","همگام‌سازی ممکن نشد.":"Sync failed.","رفتن به محتوای اصلی":"Skip to main content","مرتب‌سازی: جدیدترین":"Sort: newest","فعال‌بودن تم تطبیقی":"Enable adaptive theme","روزهای دارای برنامه":"Days with a plan","اولین کار تکمیل‌شده":"First completed task","دانلود نسخه پشتیبان":"Download backup","تنظیمات فضای هوشمند":"Smart atmosphere settings","به‌روزرسانی آب‌وهوا":"Refresh weather","پیشرفت مراقبت امروز":"Today's self-care progress","عنوان روتین یا دارو":"Routine or medicine title","مرورهای روزانه قبلی":"Previous daily reflections","ظهر زمستانی بخیر ❄️":"Good winter noon ❄️","عصر زمستانی بخیر ❄️":"Good winter evening ❄️","کار مهم در ساعت خنک":"Important task during cooler hours","تقویم گوگل متصل شد.":"Google Calendar connected.","کار جدید اضافه شد ♡":"New task added ♡","هدف جدید ساخته شد ♡":"New goal created ♡","برنامه زمانی امروز":"Today's timeline","پاییز دنج و بارانی":"Cozy Rainy Autumn","دریافت موقعیت زنده":"Get live location","یادآوری‌های پیش‌رو":"Upcoming reminders","ساخت کار با جزئیات":"Create detailed task","صبح زمستانی بخیر 🩵":"Good winter morning 🩵","عملکرد و گزارش‌ها":"Performance & reports","داده‌ها و پشتیبان":"Data & backup","مرتب‌سازی: اولویت":"Sort: priority","مرتب‌سازی: امتیاز":"Sort: points","روتین پوست و دارو":"Skin care & medicine routine","فعال‌کردن یادآوری":"Enable reminder","مهم‌ترین کار فردا":"Most important task tomorrow","آخرین به‌روزرسانی":"Last updated","ناتمام کردن مرحله":"Mark milestone incomplete","تاریخ را وارد کن.":"Enter a date.","هدف‌ها و مرحله‌ها":"Goals and milestones","بدون مورد ثبت‌شده":"No recorded items","دنج و مناسب تمرکز":"Cozy and focus-friendly","شب زمستانی بخیر 🌙":"Good winter night 🌙","رویداد بدون عنوان":"Untitled event","ویرایش ساعت روتین":"Edit routine time","انتخاب سطح انرژی":"Choose energy level","اهداف و مرحله‌ها":"Goals & milestones","تنظیمات Pinky Daily Plan":"Pinky Daily Plan settings","انتخاب هوشمند تم":"Smart theme selection","انتخاب خودکار تم":"Automatic theme selection","زمستان ابری لطیف":"Soft Cloudy Winter","شب مهتابی زمستان":"Moonlit Winter Night","همه کارهای امروز":"All of today's tasks","مرحله بدون عنوان":"Untitled milestone","تنظیمات حال‌وهوا":"Atmosphere settings","چه چیزی سخت بود؟":"What was difficult?","همگام‌سازی امروز":"Sync today","صبح برفی بخیر ❄️":"Good snowy morning ❄️","کارهای داخل خانه":"Indoor tasks","کارهای روزانه ♡":"Daily tasks ♡","حال‌وهوای امروز":"Today's atmosphere","مرتب‌سازی: زمان":"Sort: time","اندازه و امتیاز":"Size & points","میزان پویانمایی":"Animation level","شکوفه‌های بهاری":"Spring Blossoms","شب صاف تابستانی":"Clear Summer Night","زمستان یخی روشن":"Bright Icy Winter","تکمیل فعالیت‌ها":"Activity completion","شکوفایی سه‌روزه":"Three-day bloom","مورد بدون عنوان":"Untitled item","نامت را وارد کن":"Enter your name","مرتب‌سازی کارها":"Sort tasks","روند درصد تکمیل":"Completion trend","نیمه‌ی روشن روز":"The brighter half of the day","رویداد تمام‌روز":"All-day event","رسیدگی به خودم":"Self-care","باران تابستانی":"Summer Rain","طوفان تابستانی":"Summer Storm","امتیاز کسب‌شده":"Points earned","بیشینه / کمینه":"High / low","ظهر / بعدازظهر":"Noon / afternoon","ادامه‌ی مهربان":"A kind continuation","کار بدون عنوان":"Untitled task","هدف بدون عنوان":"Untitled goal","هنوز بدون داده":"No data yet","روزهای ثبت‌شده":"Recorded days","شهر انتخاب‌شده":"Selected city","مراقبت از خودم":"Self-care","حالت ماجراجویی":"Adventure mode","داده کافی نیست":"Not enough data","هدف ویرایش شد.":"Goal updated.","کارهای روزانه":"Daily tasks","عملکرد روزانه":"Daily performance","مرحله جدید...":"New milestone...","تاریخ یادآوری":"Reminder date","ذخیره تنظیمات":"Save settings","درخشش تابستان":"Summer Glow","باران زمستانی":"Winter Rain","گام‌های اهداف":"Goal milestones","پایبندی روتین":"Routine adherence","خروجی داده‌ها":"Export data","ورودی داده‌ها":"Import data","بعدازظهر بخیر":"Good afternoon","جمع‌بندی آرام":"A gentle wrap-up","تنظیم یادآوری":"Set reminder","تاریخ نامعتبر":"Invalid date","کار با جزئیات":"Detailed task","جزئیات عملکرد":"Performance details","انرژی ثبت‌شده":"Recorded energy","حالت بازتنظیم":"Reset mode","لطیف و متعادل":"Soft and balanced","گرم و پرانرژی":"Warm and energetic","شب یخی و آرام":"A calm icy night","رویداد پیش‌رو":"Upcoming event","شروع کار تازه":"Start something new","مراقبت از خود":"Self-care","استراحت کوتاه":"Short rest","موقعیت تقریبی":"Approximate location","روتین مراقبتی":"Self-care routine","افزودن مرحله":"Add milestone","ساعت یادآوری":"Reminder time","جلوه‌های برف":"Snow effects","پینکی کلاسیک":"Classic Pinky","گزارش عملکرد":"Performance report","افتخار امروز":"Today's pride","دستاورد جدید":"New achievement","رسیدن به هدف":"Goal achieved","تکمیل یک هدف":"Complete one goal","زمان استراحت":"Time to rest","ادامه‌ی آرام":"A gentle continuation","ویرایش مرحله":"Edit milestone","گزارش ماهانه":"Monthly report","گزارش سالانه":"Yearly report","حالت شکوفایی":"Bloom mode","حالت آرام‌تر":"Slower mode","صاف و آفتابی":"Clear and sunny","درخشان و یخی":"Bright and icy","آرام و شبانه":"Calm and nocturnal","رویداد تقویم":"Calendar event","📅 تقویم گوگل":"📅 Google Calendar","رویداد گذشته":"Past event","در ادامه روز":"Later today","زمان نامعتبر":"Invalid time","فعالیت بیرون":"Outdoor activity","استراحت کافی":"Enough rest","کارهای کوتاه":"Short tasks","کارهای ضروری":"Essential tasks","اطلاعات ناقص":"Incomplete information","مرور روزانه":"Daily reflection","خلاصه امروز":"Today's summary","توضیح کوتاه":"Short description","زبان برنامه":"App language","انتخاب زبان":"Choose language","ظاهر و حرکت":"Appearance & motion","باران بهاری":"Spring Rain","سرزمین برفی":"Snowy Wonderland","پیشرفت آرام":"Gentle progress","موقعیت زنده":"Live location","به‌روزرسانی":"Refresh","شهر پیش‌فرض":"Default city","وضعیت اتصال":"Connection status","احتمال بارش":"Rain chance","برداشتن تیک":"Uncheck","تکمیل مرحله":"Complete milestone","گزارش هفتگی":"Weekly report","روز ثبت‌شده":"Recorded day","اتصال تقویم":"Connect calendar","فیلتر کارها":"Task filters","تازه و روشن":"Fresh and bright","آرام و تازه":"Calm and fresh","آرام و برفی":"Calm and snowy","شهر انتخابی":"Selected city","زمانش گذشته":"Time has passed","برنامه‌ریزی":"Planning","یک کار روشن":"One clear task","موقعیت فعلی":"Current location","یادآوری‌ها":"Reminders","تداوم آرام":"gentle streak","عقب‌افتاده":"Overdue","قرص / مکمل":"Medicine / supplement","قرص و مکمل":"Medicine & supplements","ساعت انجام":"Time","تاریخ شمسی":"Jalali date","حالت نمایش":"Display mode","انتخاب فصل":"Choose season","پاییز ابری":"Cloudy Autumn","دریافت PDF":"Download PDF","گزارش شخصی":"Personal report","خطای گزارش":"Report error","دمای محسوس":"Feels like","نیمه‌ی روز":"Midday","ویرایش کار":"Edit task","ویرایش هدف":"Edit goal","بدون عنوان":"Untitled","تغییر زبان":"Change language","بازه گزارش":"Report period","گزارش فصلی":"Seasonal report","خنک و تازه":"Cool and fresh","ابری و دنج":"Cloudy and cozy","آرام و دنج":"Calm and cozy","گرم و آرام":"Warm and calm","موعد گذشته":"Past due","تمرکز عمیق":"Deep focus","برنامه سبک":"Light plan","تقویم گوگل":"Google Calendar","نوار اصلی":"Main toolbar","دستاوردها":"Achievements","انجام‌شده":"Completed","ذخیره کار":"Save task","ذخیره هدف":"Save goal","عنوان کار":"Task title","خیلی بزرگ":"Extra large","عنوان هدف":"Goal title","انتخاب تم":"Choose theme","اولین قدم":"First step","حالت تیره":"Dark mode","حالت روشن":"Light mode","شروع آرام":"A gentle start","حذف مرحله":"Delete milestone","بدون ساعت":"No time","برنامه‌ها":"Plans","فعالیت‌ها":"Activities","هدف مرتبط":"Related goal","انجام شده":"Completed","نوع روتین":"Routine type","روز تداوم":"day streak","قطع اتصال":"Disconnect","بدون داده":"No data","پیاده‌روی":"Walking","نوشیدن آب":"Drink water","حرکت آرام":"Gentle movement","شمال‌شرقی":"Northeast","جنوب‌شرقی":"Southeast","جنوب‌غربی":"Southwest","شمال‌غربی":"Northwest","Pinky Daily Plan":"Pinky Daily Plan","ثبت سریع":"Quick add","بدون هدف":"No goal","پوست صبح":"Morning skin care","هدف جدید":"New goal","این هفته":"This week","جمع‌بندی":"Summary","اعلان‌ها":"Notifications","سرعت باد":"Wind speed","صبح بخیر":"Good morning","ظهر بخیر":"Good noon","عصر بخیر":"Good evening","روز تازه":"A fresh day","انجام شد":"Done","خوش آمدی":"Welcome","اردیبهشت":"Ordibehesht","هوای سرد":"Cold weather","تیک قلبی":"Heart check","تمام روز":"All day","🌐 آنلاین":"🌐 Online","📴 آفلاین":"📴 Offline","پوست شب":"Night skin care","یادآوری":"Reminder","کم‌فشار":"Low pressure","تابستان":"Summer","این ماه":"This month","این فصل":"This season","بخش سخت":"Hardest part","تنظیمات":"Settings","جهت باد":"Wind direction","مه‌آلود":"Foggy","شب بخیر":"Good night","حذف کار":"Delete task","حذف هدف":"Delete goal","ثبت نام":"Set name","نوبت‌ها":"Sessions","جست‌وجو":"Search","فروردین":"Farvardin","نامعتبر":"Invalid","استراحت":"Rest","ابرناکی":"Cloud cover","برنامه":"Plan","افزودن":"Add","ویرایش":"Edit","انصراف":"Cancel","اولویت":"Priority","معمولی":"Normal","خودکار":"Automatic","زمستان":"Winter","روزانه":"Daily","نام من":"My name","بارانی":"Rainy","طوفانی":"Stormy","آفتابی":"Sunny","نامشخص":"Unknown","امتیاز":"points","فعالیت":"activity","عملکرد":"Performance","شهریور":"Shahrivar","مطالعه":"Study","هدف‌ها":"Goals","امروز":"Today","اهداف":"goals","متوسط":"Medium","عنوان":"Title","ذخیره":"Save","فارسی":"Persian","ملایم":"Subtle","خاموش":"Off","پاییز":"Autumn","امسال":"This year","تاریخ":"Date","رطوبت":"Humidity","هشدار":"Warning","روزها":"Days","کارها":"Tasks","موارد":"Items","تهران":"Tehran","خرداد":"Khordad","مرداد":"Mordad","اسفند":"Esfand","نوشتن":"Writing","شمالی":"North","جنوبی":"South","مرور":"Review","زیاد":"High","فعال":"Active","ساعت":"Time","کوچک":"Small","بزرگ":"Large","روشن":"Light","تیره":"Dark","دستی":"Manual","کامل":"Full","بهار":"Spring","درصد":"Percentage","طلوع":"Sunrise","غروب":"Sunset","ابری":"Cloudy","برفی":"Snowy","فردا":"Tomorrow","نوبت":"Session","مورد":"item","بستن":"Close","آبان":"Aban","بهمن":"Bahman","آرام":"Calm","ورزش":"Exercise","شرقی":"East","غربی":"West","بارش":"Precipitation","همه":"All","مهم":"Important","نوع":"Type","حذف":"Delete","دما":"Temperature","صبح":"Morning","عصر":"Evening","روز":"day","کار":"task","هدف":"goal","قفل":"Lock","تیر":"Tir","مهر":"Mehr","آذر":"Azar","صاف":"Clear","کم":"Low","کل":"Total","شب":"Night","از":"of","دی":"Dey","فا":"FA","مرحله تکمیل شده":"milestones completed","روزانه: همه کارها":"Daily: all tasks","هفتگی تا سالانه: فقط ۲ تا ۵ امتیازی":"Weekly to yearly: 2–5 point tasks only","برنامه زمانی امروز خالی است 🌸":"Today's timeline is empty 🌸","برای یک کار ساعت تعیین کن یا تقویم گوگل را به‌صورت اختیاری متصل کن.":"Set a time for a task or optionally connect Google Calendar.","هنوز هدفی ثبت نکرده‌ای.":"You have not added a goal yet.","یک هدف کوچک و مهربان برای خودت انتخاب کن.":"Choose one small, kind goal for yourself.","یادآوری فعالی نداری.":"You have no active reminders.","برای کار موردنظر روی زنگ بزن.":"Tap the bell on a task to set a reminder.","هنوز مرور روزانه‌ای ثبت نشده.":"No daily reflection has been added yet.","پایان امروز می‌تواند اولین صفحه باشد.":"The end of today can be your first entry.","جمع‌بندی:":"Summary:","خلاصه‌ی سال":"Year summary","رایج‌ترین هوا":"Most common weather","بیشترین بهره‌وری":"Highest productivity","بهترین فصل":"Best season","فعال‌ترین ماه":"Most active month","نکته‌های آرام":"Gentle insights","برای مرور سالانه هنوز داده کافی نداریم.":"There is not enough data for the yearly review yet.","پس از چند روز استفاده، الگوهای واقعی و محتاطانه اینجا دیده می‌شوند.":"After a few days of use, careful real patterns will appear here.","در حال جست‌وجوی شهر...":"Searching for a city...","حداقل دو حرف از نام شهر را وارد کن.":"Enter at least two letters of the city name.","شهری پیدا نشد؛ املای دیگری را امتحان کن.":"No city was found; try another spelling.","جست‌وجوی شهر فعلاً ممکن نیست. دوباره تلاش کن.":"City search is temporarily unavailable. Try again.","Pinky Daily Plan • گزارش شخصی":"Pinky Daily Plan • Personal report","تهیه‌شده در":"Created on","هنوز داده کافی نیست":"Not enough data yet","هنوز باز نشده":"Not unlocked yet","مورد ثبت‌شده":"Recorded item","تکمیل شده":"Completed","در حال‌وهوای روزها — داده‌ها فقط روی همین دستگاه نگه‌داری می‌شوند.":"weather across your days — data is stored only on this device."};
+      Object.assign(I18N_FA_TO_EN, {"روز آزاد":"Free day","فعال‌کردن روز آزاد":"Make today a free day","بازگشت به روز عادی":"Return to a regular day","امروز در آمار عادی محاسبه می‌شود.":"Today is included normally in your performance reports.","انتقال کارهای باقی‌مانده به فردا":"Move remaining tasks to tomorrow","چیدمان روتین‌ها":"Routine ordering","مرتب‌سازی: نوع":"Sort: type","مرتب‌سازی: نوبت بعدی":"Sort: next due","🔔 اعلان در ساعت روتین":"🔔 Notify at routine time","＋ زیرکار":"＋ Subtask","زیرکار جدید...":"New subtask...","برای این مرحله زیرکار اضافه کن":"Add subtasks for this milestone"});
       Object.assign(I18N_FA_TO_EN, {
         "قالب‌های آماده روزانه":"Ready-made day templates",
         "یک برنامه آماده را با یک لمس به روز دلخواه اضافه کن یا از کارهای یک روز، قالب شخصی خودت را بساز.":"Add a ready-made plan to any day with one tap, or create a personal template from one day's tasks.",
@@ -6509,13 +7243,13 @@
         if(!task)return;const value=Boolean(done);task.done=value;task.completedAt=value?nowIso():null;task.updatedAt=nowIso();
         if(syncSubtasks&&Array.isArray(task.subtasks)&&task.subtasks.length)task.subtasks.forEach(item=>{item.done=value;item.completedAt=value?task.completedAt:null;item.updatedAt=task.updatedAt;});
         if(value)closeTaskNotification(task.id);
-        const linked=linkedMilestone(task.id);if(linked){linked.milestone.done=task.done;linked.milestone.completedAt=task.completedAt;updateGoalCompletion(linked.goal);}
+        const linked=linkedMilestone(task.id);if(linked){linked.milestone.done=task.done;linked.milestone.subtasks=(task.subtasks||[]).map(item=>normalizeSubtask({...item}));linked.milestone.completedAt=task.completedAt;updateGoalCompletion(linked.goal);}
         ensureActivityForTask(task);
       }
       function syncTaskDoneFromSubtasks(task){
         const stats=taskSubtaskStats(task);if(!stats.total)return;const shouldBeDone=stats.completed===stats.total;if(task.done!==shouldBeDone)setTaskDoneState(task,shouldBeDone,{syncSubtasks:false});else ensureActivityForTask(task);
       }
-      function toggleTaskSubtask(taskId,subtaskId){openSubtaskTaskIds.add(taskId);const task=state.tasks.find(entry=>entry.id===taskId);const subtask=task?.subtasks?.find(entry=>entry.id===subtaskId);if(!task||!subtask||task.archivedAt)return;subtask.done=!subtask.done;subtask.completedAt=subtask.done?nowIso():null;subtask.updatedAt=nowIso();task.updatedAt=nowIso();syncTaskDoneFromSubtasks(task);renderAll();showToast(subtask.done?"زیرکار انجام شد.":"زیرکار دوباره فعال شد.","چک‌لیست");}
+      function toggleTaskSubtask(taskId,subtaskId){openSubtaskTaskIds.add(taskId);const task=state.tasks.find(entry=>entry.id===taskId);const subtask=task?.subtasks?.find(entry=>entry.id===subtaskId);if(!task||!subtask||task.archivedAt)return;subtask.done=!subtask.done;subtask.completedAt=subtask.done?nowIso():null;subtask.updatedAt=nowIso();task.updatedAt=nowIso();syncTaskDoneFromSubtasks(task);const linked=linkedMilestone(task.id);if(linked)linked.milestone.subtasks=task.subtasks.map(item=>normalizeSubtask({...item}));renderAll();showToast(subtask.done?"زیرکار انجام شد.":"زیرکار دوباره فعال شد.","چک‌لیست");}
       function editTaskSubtask(taskId,subtaskId){openSubtaskTaskIds.add(taskId);const task=state.tasks.find(entry=>entry.id===taskId);const subtask=task?.subtasks?.find(entry=>entry.id===subtaskId);if(!task||!subtask||task.archivedAt)return;const value=prompt("عنوان زیرکار را ویرایش کن:",subtask.title);if(value===null||!value.trim())return;subtask.title=value.trim().slice(0,120);subtask.updatedAt=nowIso();task.updatedAt=nowIso();renderAll();}
       function deleteTaskSubtask(taskId,subtaskId){openSubtaskTaskIds.add(taskId);const task=state.tasks.find(entry=>entry.id===taskId);const subtask=task?.subtasks?.find(entry=>entry.id===subtaskId);if(!task||!subtask||task.archivedAt)return;if(!confirm(`زیرکار «${subtask.title}» حذف شود؟`))return;task.subtasks=task.subtasks.filter(entry=>entry.id!==subtaskId);task.updatedAt=nowIso();if(task.subtasks.length)syncTaskDoneFromSubtasks(task);renderAll();showToast("زیرکار حذف شد.","چک‌لیست");}
       function addInlineTaskSubtask(taskId,input){openSubtaskTaskIds.add(taskId);const task=state.tasks.find(entry=>entry.id===taskId);const title=input?.value?.trim();if(!task||!title||task.archivedAt)return;task.subtasks.push(normalizeSubtask({id:createId(),title,done:false,createdAt:nowIso()}));task.updatedAt=nowIso();if(task.done)setTaskDoneState(task,false,{syncSubtasks:false});input.value="";renderAll();showToast("زیرکار اضافه شد.","چک‌لیست");}
@@ -6636,26 +7370,37 @@
 
       function openGoalDialog(goalId=null){const goal=goalId?state.goals.find(g=>g.id===goalId):null;els.goalForm.reset();els.editingGoalId.value=goal?.id||"";els.goalDialogTitle.textContent=goal?"ویرایش هدف":"هدف جدید";els.goalTitleInput.value=goal?.title||"";els.goalDescriptionInput.value=goal?.description||"";els.goalFirstMilestoneInput.parentElement.hidden=Boolean(goal);els.goalDialog.showModal();setTimeout(()=>els.goalTitleInput.focus(),0);}
       function closeGoalDialog(){if(els.goalDialog.open)els.goalDialog.close();}
-      function saveGoalFromDialog(event){event.preventDefault();const title=els.goalTitleInput.value.trim();if(!title)return;const id=els.editingGoalId.value;const existing=id?state.goals.find(g=>g.id===id):null;if(existing){existing.title=title;existing.description=els.goalDescriptionInput.value.trim();}else{const goal={id:createId(),title,description:els.goalDescriptionInput.value.trim(),createdAt:nowIso(),completedAt:null,milestones:[]};const first=els.goalFirstMilestoneInput.value.trim();if(first){const m={id:createId(),linkedTaskId:null,title:first,done:false,createdAt:nowIso(),completedAt:null,parentId:goal.id};goal.milestones.push(m);ensureActivityForMilestone(m,goal.id);}state.goals.unshift(goal);}closeGoalDialog();renderAll();showToast(existing?"هدف ویرایش شد.":"هدف جدید ساخته شد ♡");}
-      function addMilestone(goalId,title){const goal=state.goals.find(g=>g.id===goalId);if(!goal)return;const m={id:createId(),linkedTaskId:null,title,done:false,createdAt:nowIso(),completedAt:null,parentId:goal.id};goal.milestones.push(m);ensureActivityForMilestone(m,goal.id);renderAll();}
-      function toggleMilestone(goalId,milestoneId){const goal=state.goals.find(g=>g.id===goalId);const m=goal?.milestones.find(x=>x.id===milestoneId);if(!m)return;m.done=!m.done;m.completedAt=m.done?nowIso():null;const task=linkedTask(m);if(task){task.done=m.done;task.completedAt=m.completedAt;ensureActivityForTask(task);}else{const rec=ensureActivityForMilestone(m,goal.id);rec.completedAt=m.completedAt;}updateGoalCompletion(goal);renderAll();}
+      function saveGoalFromDialog(event){event.preventDefault();const title=els.goalTitleInput.value.trim();if(!title)return;const id=els.editingGoalId.value;const existing=id?state.goals.find(g=>g.id===id):null;if(existing){existing.title=title;existing.description=els.goalDescriptionInput.value.trim();}else{const goal={id:createId(),title,description:els.goalDescriptionInput.value.trim(),createdAt:nowIso(),completedAt:null,milestones:[]};const first=els.goalFirstMilestoneInput.value.trim();if(first){const m={id:createId(),linkedTaskId:null,title:first,done:false,subtasks:[],createdAt:nowIso(),completedAt:null,parentId:goal.id};goal.milestones.push(m);ensureActivityForMilestone(m,goal.id);}state.goals.unshift(goal);}closeGoalDialog();renderAll();showToast(existing?"هدف ویرایش شد.":"هدف جدید ساخته شد ♡");}
+      function addMilestone(goalId,title){const goal=state.goals.find(g=>g.id===goalId);if(!goal)return;const m={id:createId(),linkedTaskId:null,title,done:false,subtasks:[],createdAt:nowIso(),completedAt:null,parentId:goal.id};goal.milestones.push(m);ensureActivityForMilestone(m,goal.id);renderAll();}
+      function milestoneSubtasks(milestone){const task=linkedTask(milestone);if(task)return task.subtasks||(task.subtasks=[]);if(!Array.isArray(milestone.subtasks))milestone.subtasks=[];return milestone.subtasks;}
+      function syncGoalMilestoneFromSubtasks(goal,milestone){const task=linkedTask(milestone);const subtasks=milestoneSubtasks(milestone);const allDone=subtasks.length>0&&subtasks.every(item=>item.done);const completedAt=allDone?(subtasks.map(item=>item.completedAt).filter(Boolean).sort().at(-1)||nowIso()):null;if(task){task.done=allDone;task.completedAt=completedAt;task.updatedAt=nowIso();ensureActivityForTask(task);}milestone.done=allDone;milestone.completedAt=completedAt;milestone.subtasks=subtasks.map(item=>normalizeSubtask({...item}));if(!task){const record=ensureActivityForMilestone(milestone,goal.id);record.completedAt=completedAt;}updateGoalCompletion(goal);}
+      function addGoalSubtask(goalId,milestoneId,title){const goal=state.goals.find(g=>g.id===goalId);const milestone=goal?.milestones.find(item=>item.id===milestoneId);if(!milestone||!title.trim())return;const task=linkedTask(milestone);const item=normalizeSubtask({id:createId(),title:title.trim(),done:false,createdAt:nowIso()});milestoneSubtasks(milestone).push(item);if(task){task.updatedAt=nowIso();if(task.done)setTaskDoneState(task,false,{syncSubtasks:false});}milestone.done=false;milestone.completedAt=null;ensureActivityForMilestone(milestone,goal.id);renderAll();showToast("زیرکار هدف اضافه شد.","هدف‌ها");}
+      function toggleGoalSubtask(goalId,milestoneId,subtaskId){const goal=state.goals.find(g=>g.id===goalId);const milestone=goal?.milestones.find(item=>item.id===milestoneId);if(!milestone)return;const task=linkedTask(milestone);if(task){toggleTaskSubtask(task.id,subtaskId);return;}const subtask=milestoneSubtasks(milestone).find(item=>item.id===subtaskId);if(!subtask)return;subtask.done=!subtask.done;subtask.completedAt=subtask.done?nowIso():null;subtask.updatedAt=nowIso();syncGoalMilestoneFromSubtasks(goal,milestone);renderAll();showToast(subtask.done?"زیرکار انجام شد.":"زیرکار دوباره فعال شد.","هدف‌ها");}
+      function editGoalSubtask(goalId,milestoneId,subtaskId){const goal=state.goals.find(g=>g.id===goalId);const milestone=goal?.milestones.find(item=>item.id===milestoneId);if(!milestone)return;const task=linkedTask(milestone);if(task){editTaskSubtask(task.id,subtaskId);return;}const subtask=milestoneSubtasks(milestone).find(item=>item.id===subtaskId);if(!subtask)return;const value=prompt("عنوان زیرکار را ویرایش کن:",subtask.title);if(value===null||!value.trim())return;subtask.title=value.trim().slice(0,120);subtask.updatedAt=nowIso();renderAll();}
+      function deleteGoalSubtask(goalId,milestoneId,subtaskId){const goal=state.goals.find(g=>g.id===goalId);const milestone=goal?.milestones.find(item=>item.id===milestoneId);if(!milestone)return;const task=linkedTask(milestone);if(task){deleteTaskSubtask(task.id,subtaskId);return;}const subtask=milestoneSubtasks(milestone).find(item=>item.id===subtaskId);if(!subtask||!confirm(`زیرکار «${subtask.title}» حذف شود؟`))return;milestone.subtasks=milestone.subtasks.filter(item=>item.id!==subtaskId);if(milestone.subtasks.length)syncGoalMilestoneFromSubtasks(goal,milestone);else{milestone.done=false;milestone.completedAt=null;ensureActivityForMilestone(milestone,goal.id);}renderAll();}
+      function toggleMilestone(goalId,milestoneId){const goal=state.goals.find(g=>g.id===goalId);const m=goal?.milestones.find(x=>x.id===milestoneId);if(!m)return;const nextDone=!m.done;const task=linkedTask(m);if(task){setTaskDoneState(task,nextDone,{syncSubtasks:true});m.subtasks=task.subtasks.map(item=>normalizeSubtask({...item}));}else{m.done=nextDone;m.completedAt=nextDone?nowIso():null;milestoneSubtasks(m).forEach(item=>{item.done=nextDone;item.completedAt=nextDone?m.completedAt:null;item.updatedAt=nowIso();});const rec=ensureActivityForMilestone(m,goal.id);rec.completedAt=m.completedAt;}updateGoalCompletion(goal);renderAll();}
       function toggleMilestoneToday(goalId,milestoneId){
         const goal=state.goals.find(g=>g.id===goalId);const m=goal?.milestones.find(x=>x.id===milestoneId);if(!m)return;
         const today=localDateKey();let task=linkedTask(m);
         if(task&&!task.archivedAt&&task.plannedDate===today){
-          m.linkedTaskId=null;m.title=task.title;m.done=task.done;m.completedAt=task.completedAt;
+          m.linkedTaskId=null;m.title=task.title;m.done=task.done;m.completedAt=task.completedAt;m.subtasks=(task.subtasks||[]).map(item=>normalizeSubtask({...item}));
           if(m.id===task.id){const record=activityRecord(task.id);if(record){Object.assign(record,{type:"milestone",parentId:goal.id,title:m.title,plannedDate:dateKeyFromAny(m.createdAt),points:1,completedAt:m.completedAt,deletedAt:null});}}
           else{archiveActivity(task.id);const milestoneRecord=ensureActivityForMilestone(m,goal.id);Object.assign(milestoneRecord,{plannedDate:dateKeyFromAny(m.createdAt),deletedAt:null});}
           closeTaskNotification(task.id);state.tasks=state.tasks.filter(entry=>entry.id!==task.id);updateGoalCompletion(goal);renderAll();showToast("از کارهای روزانه امروز برداشته شد.","هدف‌ها");return;
         }
         if(m.done){showToast("این مرحله قبلاً تکمیل شده است.","هدف‌ها");return;}
-        if(task){task.plannedDate=today;task.manualOrder=nextManualOrderForDate(today,task.id);task.archivedAt=null;task.updatedAt=nowIso();task.done=false;task.completedAt=null;task.notifiedAt=null;}
-        else{task=normalizeTask({id:m.id,title:m.title,goalId:goal.id,plannedDate:today,manualOrder:nextManualOrderForDate(today),size:"small",priority:"normal",done:false,createdAt:m.createdAt||nowIso()});state.tasks.unshift(task);m.linkedTaskId=task.id;}
-        m.linkedTaskId=task.id;m.done=task.done;m.completedAt=task.completedAt;ensureActivityForTask(task);updateGoalCompletion(goal);renderAll();showToast("به کارهای روزانه امروز اضافه شد ♡","هدف‌ها");
+        if(task){task.plannedDate=today;task.manualOrder=nextManualOrderForDate(today,task.id);task.archivedAt=null;task.updatedAt=nowIso();task.done=false;task.completedAt=null;task.notifiedAt=null;if(!task.subtasks.length&&m.subtasks?.length)task.subtasks=m.subtasks.map(item=>normalizeSubtask({...item,done:false,completedAt:null}));}
+        else{task=normalizeTask({id:m.id,title:m.title,goalId:goal.id,plannedDate:today,manualOrder:nextManualOrderForDate(today),size:"small",priority:"normal",subtasks:(m.subtasks||[]).map(item=>normalizeSubtask({...item,done:false,completedAt:null})),done:false,createdAt:m.createdAt||nowIso()});state.tasks.unshift(task);m.linkedTaskId=task.id;}
+        m.linkedTaskId=task.id;m.done=task.done;m.completedAt=task.completedAt;m.subtasks=task.subtasks.map(item=>normalizeSubtask({...item}));ensureActivityForTask(task);updateGoalCompletion(goal);renderAll();showToast("به کارهای روزانه امروز اضافه شد ♡","هدف‌ها");
       }
       function editMilestone(goalId,milestoneId){const goal=state.goals.find(g=>g.id===goalId);const m=goal?.milestones.find(x=>x.id===milestoneId);if(!m)return;const value=prompt("عنوان مرحله را ویرایش کن:",m.title);if(value===null||!value.trim())return;m.title=value.trim().slice(0,120);const task=linkedTask(m);if(task){task.title=m.title;ensureActivityForTask(task);}else ensureActivityForMilestone(m,goal.id);renderAll();}
       function deleteMilestone(goalId,milestoneId){const goal=state.goals.find(g=>g.id===goalId);const m=goal?.milestones.find(x=>x.id===milestoneId);if(!m)return;if(!confirm(`مرحله «${m.title}» حذف شود؟`))return;const task=linkedTask(m);if(task){task.goalId=null;ensureActivityForTask(task);}else archiveActivity(m.id);goal.milestones=goal.milestones.filter(x=>x.id!==milestoneId);updateGoalCompletion(goal);renderAll();}
       function deleteGoal(goalId){const goal=state.goals.find(g=>g.id===goalId);if(!goal||!confirm(`هدف «${goal.title}» و مرحله‌های آن حذف شوند؟`))return;goal.milestones.forEach(m=>{const task=linkedTask(m);if(task){task.goalId=null;ensureActivityForTask(task);}else archiveActivity(m.id);});state.goals=state.goals.filter(g=>g.id!==goalId);renderAll();}
+
+      function routineReminderAt(item,dateKey){if(!item?.reminderEnabled||!item.time||!recurrenceMatchesDate(item,dateKey))return null;return combineLocalDateTime(dateKey,item.time);}
+      function upcomingRoutineReminders(days=30){const now=Date.now();const results=[];state.routineItems.forEach(item=>{if(!item.reminderEnabled||!item.time)return;for(let offset=0;offset<=days;offset+=1){const key=shiftDateKey(localDateKey(),offset);if(!recurrenceMatchesDate(item,key)||(state.routineChecksByDate?.[key]||{})[item.id])continue;const reminderAt=routineReminderAt(item,key);const timestamp=Date.parse(reminderAt);if(!Number.isFinite(timestamp)||timestamp<now-60000)continue;results.push({id:`routine:${item.id}:${key}`,routineId:item.id,dateKey:key,title:item.title,reminderAt,type:"routine"});}});return results.sort((a,b)=>new Date(a.reminderAt)-new Date(b.reminderAt));}
+      function routineNotificationMap(key=localDateKey()){if(!state.routineNotificationsByDate[key]||typeof state.routineNotificationsByDate[key]!=="object")state.routineNotificationsByDate[key]={};return state.routineNotificationsByDate[key];}
+      function removeRoutineReminder(itemId){const item=state.routineItems.find(entry=>entry.id===itemId);if(!item)return;item.reminderEnabled=false;item.updatedAt=nowIso();saveState();renderAll();showToast("اعلان روتین خاموش شد.","روتین مراقبتی");}
 
       // ===== اعلان پوش روی گوشی (حتی وقتی سایت بسته است) =====
       const VAPID_PUBLIC_KEY = window.PINKY_PORTAL_CONFIG?.vapidPublicKey || "";
@@ -6692,7 +7437,7 @@
           els.pushEnableButton.disabled=true;els.pushEnableButton.textContent="در حال فعال‌سازی...";
           const permission=await Notification.requestPermission();
           if(permission!=="granted"){showToast("اجازه‌ی اعلان داده نشد.","اعلان گوشی");return;}
-          const registration=await navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.1.1"}`),{scope:window.PinkyAppUrl("./"),updateViaCache:"none"});
+          const registration=await navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.3"}`),{scope:window.PinkyAppUrl("./"),updateViaCache:"none"});
           await navigator.serviceWorker.ready;
           let subscription=await registration.pushManager.getSubscription();
           if(!subscription){subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});}
@@ -6723,7 +7468,7 @@
         clearTimeout(syncRemindersTimer);
         syncRemindersTimer=setTimeout(async()=>{
           try{
-            const reminders=state.tasks.filter(t=>!t.archivedAt&&t.reminderAt&&!t.done).map(t=>({id:t.id,title:t.title,reminderAt:t.reminderAt}));
+            const reminders=[...state.tasks.filter(t=>!t.archivedAt&&t.reminderAt&&!t.done).map(t=>({id:t.id,title:t.title,reminderAt:t.reminderAt})),...upcomingRoutineReminders(45).map(item=>({id:item.id,title:`روتین: ${item.title}`,reminderAt:item.reminderAt}))];
             const res=await window.PinkyPortal.functionFetch("sync-reminders",{method:"POST",headers:window.PinkyPortal?.authHeaders?.({"Content-Type":"application/json"})||{"Content-Type":"application/json"},body:JSON.stringify({deviceId:getDeviceId(),reminders,language:uiLanguage()})});
             if(!res.ok)console.warn("پاسخ همگام‌سازی یادآوری‌ها نامعتبر بود",res.status);
           }catch(error){console.warn("همگام‌سازی یادآوری‌ها ناموفق بود",error);}
@@ -6731,14 +7476,14 @@
       }
       function icsDateUTC(date){const d=new Date(date);const pad=n=>String(n).padStart(2,"0");return `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;}
       function icsEscape(text){return String(text||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");}
-      function taskIcsEvent(task){const start=new Date(task.reminderAt);const end=new Date(start.getTime()+15*60000);return ["BEGIN:VEVENT",`UID:pinkyday-${task.id}@pinkyday.local`,`DTSTAMP:${icsDateUTC(new Date())}`,`DTSTART:${icsDateUTC(start)}`,`DTEND:${icsDateUTC(end)}`,`SUMMARY:${icsEscape(task.title)}`,"BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${icsEscape(task.title)}`,"TRIGGER:PT0M","END:VALARM","END:VEVENT"].join("\r\n");}
+      function taskIcsEvent(task){const start=new Date(task.reminderAt);const end=new Date(start.getTime()+15*60000);return ["BEGIN:VEVENT",`UID:pinkyday-${String(task.id).replace(/[^a-z0-9_-]/gi,"-")}@pinkyday.local`,`DTSTAMP:${icsDateUTC(new Date())}`,`DTSTART:${icsDateUTC(start)}`,`DTEND:${icsDateUTC(end)}`,`SUMMARY:${icsEscape(task.title)}`,"BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${icsEscape(task.title)}`,"TRIGGER:PT0M","END:VALARM","END:VEVENT"].join("\r\n");}
       function buildIcsCalendar(events){return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Pinky Daily Plan//Reminders//FA","CALSCALE:GREGORIAN",...events,"END:VCALENDAR"].join("\r\n");}
       function downloadIcsFile(content,filename){const blob=new Blob([content],{type:"text/calendar;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);}
       function downloadTaskIcs(task){if(!task?.reminderAt){showToast("این کار یادآوری‌ای ندارد.");return;}downloadIcsFile(buildIcsCalendar([taskIcsEvent(task)]),`Pinky-Day-Reminder-${task.id}.ics`);showToast("فایل یادآوری دانلود شد؛ بازش کن تا به تقویم گوشی اضافه شود و حتی وقتی سایت بسته است اعلان بدهد.","افزودن به تقویم گوشی");}
-      function exportAllRemindersIcs(){const upcoming=state.tasks.filter(t=>!t.archivedAt&&t.reminderAt&&!t.done);if(!upcoming.length){showToast("یادآوری فعالی برای افزودن به تقویم نداری.");return;}downloadIcsFile(buildIcsCalendar(upcoming.map(taskIcsEvent)),`Pinky-Day-Reminders-${localDateKey()}.ics`);showToast("فایل تقویم با همه‌ی یادآوری‌ها دانلود شد؛ بازش کن تا به تقویم گوشی اضافه شوند.","افزودن به تقویم گوشی");}
+      function exportAllRemindersIcs(){const upcoming=[...state.tasks.filter(t=>!t.archivedAt&&t.reminderAt&&!t.done),...upcomingRoutineReminders(45)];if(!upcoming.length){showToast("یادآوری فعالی برای افزودن به تقویم نداری.");return;}downloadIcsFile(buildIcsCalendar(upcoming.map(taskIcsEvent)),`Pinky-Day-Reminders-${localDateKey()}.ics`);showToast("فایل تقویم با همه‌ی یادآوری‌ها دانلود شد؛ بازش کن تا به تقویم گوشی اضافه شوند.","افزودن به تقویم گوشی");}
       function removeTaskReminder(taskId){const task=state.tasks.find(t=>t.id===taskId);if(!task)return;task.reminderAt=null;task.notifiedAt=null;task.updatedAt=nowIso();closeTaskNotification(taskId);ensureActivityForTask(task);renderAll();showToast("یادآوری حذف شد.");}
       async function requestNotifications(){if(!("Notification" in window)){showToast("اعلان سیستمی در این مرورگر در دسترس نیست.","اعلان");return;}try{await Notification.requestPermission();}catch(error){console.warn("دریافت اجازه اعلان ناموفق بود",error);}renderNotificationStatus();}
-      function checkReminders(){const now=Date.now();let changed=false;state.tasks.forEach(task=>{if(task.done||task.archivedAt||!task.reminderAt)return;const due=new Date(task.reminderAt).getTime();if(Number.isFinite(due)&&due<=now&&!task.notifiedAt){task.notifiedAt=nowIso();changed=true;showToast(task.title,"یادآوری Pinky Daily Plan 🔔");if("Notification" in window&&Notification.permission==="granted"){try{const notif=new Notification("Pinky Daily Plan ♡",{body:task.title,tag:`pinky-${task.id}`});activeNotifications.set(task.id,notif);notif.addEventListener("close",()=>activeNotifications.delete(task.id));}catch(error){console.warn("نمایش اعلان ناموفق بود",error);}}}});if(changed)saveState();renderReminders();}
+      function checkReminders(){const now=Date.now();let changed=false;state.tasks.forEach(task=>{if(task.done||task.archivedAt||!task.reminderAt)return;const due=new Date(task.reminderAt).getTime();if(Number.isFinite(due)&&due<=now&&!task.notifiedAt){task.notifiedAt=nowIso();changed=true;showToast(task.title,"یادآوری Pinky Daily Plan 🔔");if("Notification" in window&&Notification.permission==="granted"){try{const notif=new Notification("Pinky Daily Plan ♡",{body:task.title,tag:`pinky-${task.id}`});activeNotifications.set(task.id,notif);notif.addEventListener("close",()=>activeNotifications.delete(task.id));}catch(error){console.warn("نمایش اعلان ناموفق بود",error);}}}});const today=localDateKey();const notified=routineNotificationMap(today);routineItemsForDateKey(today).forEach(item=>{if(!item.reminderEnabled||!item.time||(state.routineChecksByDate?.[today]||{})[item.id]||notified[item.id])return;const due=Date.parse(routineReminderAt(item,today));if(Number.isFinite(due)&&due<=now){notified[item.id]=nowIso();changed=true;const body=`روتین: ${item.title}`;showToast(body,"یادآوری مراقبت ✨");if("Notification" in window&&Notification.permission==="granted"){try{const id=`routine:${item.id}:${today}`;const notif=new Notification("Pinky Daily Plan ✨",{body,tag:`pinky-${id}`});activeNotifications.set(id,notif);notif.addEventListener("close",()=>activeNotifications.delete(id));}catch(error){console.warn("نمایش اعلان روتین ناموفق بود",error);}}}});if(changed)saveState();renderReminders();}
       function startReminderLoop(){clearInterval(reminderTimer);checkReminders();reminderTimer=setInterval(()=>{checkReminders();renderTimeline();},30000);}
 
       function saveReflection(event){event.preventDefault();const today=localDateKey();state.reflections[today]={proud:els.reflectionProud.value.trim(),hard:els.reflectionHard.value.trim(),tomorrow:els.reflectionTomorrow.value.trim(),selfPride:els.reflectionSelfPride.value.trim(),updatedAt:nowIso()};saveState();renderReflection();showToast("مرور روزانه امروز ذخیره شد 🌙");}
@@ -6761,6 +7506,8 @@
         bindJalaliDateInput(els.templateSourceDateInput, els.templateSourceDateError, true);
         $$("[data-date-target]").forEach(button => button.addEventListener("click", () => setQuickJalaliDate(button.dataset.dateTarget, button.dataset.dateOffset)));
         els.routineForm.addEventListener("submit", saveRoutineItem);
+        els.routineSortSelect?.addEventListener("change",()=>{state.settings.routineSort=els.routineSortSelect.value;saveState();renderRoutine();});
+        els.freeDayToggle?.addEventListener("click",toggleFreeDay);els.freeDayTransferButton?.addEventListener("click",transferFreeDayTasks);
         els.routineRecurrenceType.addEventListener("change", toggleRoutineRecurrenceFields);
         els.routineStartDateInput.addEventListener("change", toggleRoutineRecurrenceFields);
         els.cancelRoutineEditButton.addEventListener("click", () => resetRoutineForm({focus:true}));
@@ -7020,6 +7767,148 @@
     })();
   </script>
 
-  <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.1.1"}`),{updateViaCache:"none"}).then(registration=>registration.update().catch(()=>{})).catch(error=>console.warn("Service worker registration failed",error)));}</script>
+  <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register(window.PinkyAppUrl(`sw.js?v=${window.PINKY_APP_VERSION||"2.4.3"}`),{updateViaCache:"none"}).then(registration=>registration.update().catch(()=>{})).catch(error=>console.warn("Service worker registration failed",error)));}</script>
+
+  <script>
+    (() => {
+      "use strict";
+      const labels = {
+        fa: {
+          weather: "جزئیات آب‌وهوا",
+          state: "حال، انرژی و روز آزاد",
+          routine: "افزودن یا ویرایش روتین",
+          more: "سایر بخش‌های امروز",
+          moreHint: "برنامه زمانی و یادآوری‌ها",
+          loading: "در حال ورود و همگام‌سازی امن…",
+          version: "نسخه"
+        },
+        en: {
+          weather: "Weather details",
+          state: "Mood, energy and free day",
+          routine: "Add or edit a routine",
+          more: "More for today",
+          moreHint: "Timeline and reminders",
+          loading: "Signing in and syncing securely…",
+          version: "Version"
+        }
+      };
+      const language = () => document.documentElement.lang === "en" ? "en" : "fa";
+      const text = key => labels[language()][key];
+
+      function makeDetails(className, summaryClass, summaryContent) {
+        const details = document.createElement("details");
+        details.className = className;
+        const summary = document.createElement("summary");
+        summary.className = summaryClass;
+        summary.innerHTML = summaryContent;
+        const content = document.createElement("div");
+        content.className = `${className.replace(/-details$/, "")}-content`;
+        details.append(summary, content);
+        return { details, summary, content };
+      }
+
+      function setupWeatherDetails() {
+        const panel = document.getElementById("atmospherePanel");
+        const main = panel?.querySelector(".atmosphere-main");
+        if (!main || main.querySelector(":scope > .weather-details")) return;
+        const { details, summary, content } = makeDetails("weather-details", "weather-details-summary", text("weather"));
+        [main.querySelector(".weather-status-row"), document.getElementById("weatherMetrics"), document.getElementById("weatherError")].filter(Boolean).forEach(node => content.appendChild(node));
+        main.appendChild(details);
+        details.appendChild(content);
+        summary.textContent = text("weather");
+      }
+
+      function setupTodayStateDetails() {
+        const progress = document.querySelector(".hero-progress");
+        const energy = progress?.querySelector(".energy-section");
+        const freeDay = document.getElementById("freeDayCard");
+        if (!progress || !energy || !freeDay || progress.querySelector(":scope > .today-state-details")) return;
+        const { details, summary, content } = makeDetails("today-state-details", "today-state-summary", text("state"));
+        content.append(energy, freeDay);
+        progress.appendChild(details);
+        details.appendChild(content);
+        summary.textContent = text("state");
+      }
+
+      function setupRoutineEditor() {
+        const form = document.getElementById("routineForm");
+        if (!form || form.closest(".routine-editor-details")) return;
+        const { details, summary, content } = makeDetails("routine-editor-details", "routine-editor-summary", text("routine"));
+        form.parentNode.insertBefore(details, form);
+        content.appendChild(form);
+        details.appendChild(content);
+        summary.textContent = text("routine");
+        details.id = "routineEditorDetails";
+      }
+
+      function setupTodayFlow() {
+        const grid = document.querySelector(".dashboard-grid");
+        const stacks = grid ? [...grid.querySelectorAll(":scope > .stack")] : [];
+        const primary = stacks[0];
+        const secondary = stacks[1];
+        const tasks = document.getElementById("tasksPanel");
+        const routine = document.getElementById("routinePanel");
+        const timeline = document.getElementById("timelinePanel");
+        const reminders = document.getElementById("remindersPanel");
+        if (!primary || !tasks || !routine || !timeline || !reminders) return;
+        primary.classList.add("today-primary-stack");
+        secondary?.classList.add("today-secondary-stack");
+        if (routine.parentNode !== primary) primary.insertBefore(routine, tasks.nextSibling);
+        let details = document.getElementById("todayMoreDetails");
+        if (!details) {
+          const created = makeDetails("today-more-details", "today-more-summary", `<span><strong>${text("more")}</strong><small>${text("moreHint")}</small></span>`);
+          details = created.details;
+          details.id = "todayMoreDetails";
+          created.content.append(timeline, reminders);
+          details.appendChild(created.content);
+          primary.appendChild(details);
+        }
+        if (secondary && !secondary.querySelector(".panel")) { secondary.hidden = true; secondary.classList.add("is-empty-today-stack"); }
+      }
+
+      function openRoutineEditorSoon() {
+        requestAnimationFrame(() => {
+          const details = document.getElementById("routineEditorDetails");
+          if (details) details.open = true;
+        });
+      }
+
+      function updateLabels() {
+        const weather = document.querySelector(".weather-details > summary");
+        const state = document.querySelector(".today-state-details > summary");
+        const routine = document.querySelector(".routine-editor-details > summary");
+        const more = document.querySelector(".today-more-details > summary span");
+        if (weather) weather.textContent = text("weather");
+        if (state) state.textContent = text("state");
+        if (routine) routine.textContent = text("routine");
+        if (more) more.innerHTML = `<strong>${text("more")}</strong><small>${text("moreHint")}</small>`;
+        const loadingStatus = document.querySelector(".portal-loading-status");
+        const loadingVersion = document.querySelector(".portal-loading-version");
+        if (loadingStatus) loadingStatus.textContent = text("loading");
+        if (loadingVersion) loadingVersion.textContent = `${text("version")} ${globalThis.PINKY_APP_VERSION || "2.4.3"}`;
+      }
+
+      function setup() {
+        document.body.classList.add("calm-today-redesign");
+        setupWeatherDetails();
+        setupTodayStateDetails();
+        setupRoutineEditor();
+        setupTodayFlow();
+        updateLabels();
+        document.addEventListener("click", event => {
+          if (event.target.closest(".routine-edit")) openRoutineEditorSoon();
+          const shortcut = event.target.closest("[data-scroll-target='timelinePanel'],[data-scroll-target='remindersPanel']");
+          if (shortcut) {
+            const details = document.getElementById("todayMoreDetails");
+            if (details) details.open = true;
+          }
+        }, true);
+        new MutationObserver(updateLabels).observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir"] });
+      }
+
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup, { once: true });
+      else setup();
+    })();
+  </script>
 </body>
 </html>
