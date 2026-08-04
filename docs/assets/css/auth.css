@@ -634,3 +634,34 @@ h1 {
 @media (forced-colors: active) {
   .button, input, .auth-card, .auth-aside, .preview-card { border: 1px solid CanvasText; }
 }
+
+
+/* Desktop splash simplification — v2.4.3 */
+@media (min-width: 761px) {
+  .auth-splash {
+    grid-template-rows: 1fr auto;
+    gap: 0;
+  }
+  .auth-splash .splash-brand {
+    align-self: center;
+    text-align: center;
+  }
+  .auth-splash .splash-logo {
+    width: 118px;
+  }
+  .auth-splash .splash-title {
+    margin-top: 18px;
+    font-size: 1.75rem;
+  }
+  .auth-splash .splash-tagline,
+  .auth-splash .splash-progress {
+    display: none !important;
+  }
+  .auth-splash .splash-version {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: max(24px, env(safe-area-inset-bottom));
+    margin: 0;
+    text-align: center;
+  }
+}

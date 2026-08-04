@@ -2,6 +2,8 @@
   "use strict";
 
   const STORAGE_KEY = "pinky-day-planner-v1";
+  const PORTAL_SPLASH_MIN_MS = 2000;
+  const portalSplashStartedAt = performance.now();
   const META_PREFIX = "pinky-day-cloud-meta:";
   const CONFLICT_BACKUP_KEY = "pinky-day-cloud-conflict-backup";
   const REMOTE_APPLY_FLAG = "pinky-day-cloud-remote-applied";
@@ -143,7 +145,7 @@
     const expectedRevision = force ? null : (currentRevision || null);
     const { data, error } = await client.rpc("save_pinky_state", {
       p_data: state,
-      p_schema_version: Number(state.schemaVersion) || 16,
+      p_schema_version: Number(state.schemaVersion) || 17,
       p_device_id: deviceId,
       p_expected_revision: expectedRevision
     });
@@ -400,7 +402,7 @@
     document.querySelectorAll("[data-portal-i18n]").forEach(node => {
       const key = node.dataset.portalI18n;
       const copy = {
-        account: ["حساب", "Account"], logout: ["خروج", "Log out"], admin: ["مدیریت", "Admin"],
+        account: ["حساب", "Account"], manageAccount: ["مدیریت حساب", "Manage account"], accountSettings: ["حساب و همگام‌سازی", "Account & sync"], logout: ["خروج", "Log out"], admin: ["مدیریت", "Admin"],
         accountTitle: ["حساب Pinky Daily Plan", "Pinky Daily Plan account"], displayName: ["نام نمایشی", "Display name"],
         saveProfile: ["ذخیره حساب", "Save account"], deleteAccount: ["حذف کامل حساب", "Delete account"],
         close: ["بستن", "Close"]
@@ -412,7 +414,7 @@
 
   function bindPortalUI() {
     const dialog = document.getElementById("portalAccountDialog");
-    document.getElementById("portalAccountButton")?.addEventListener("click", () => dialog?.showModal());
+    document.getElementById("portalAccountButton")?.addEventListener("click", () => { document.getElementById("settingsDialog")?.close(); dialog?.showModal(); });
     document.getElementById("portalAccountClose")?.addEventListener("click", () => dialog?.close());
     document.getElementById("portalLogoutButton")?.addEventListener("click", logout);
     document.getElementById("portalAccountLogout")?.addEventListener("click", logout);
@@ -508,6 +510,8 @@
       await new Promise(resolve => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
     }
     bindPortalUI();
+    const splashRemaining = Math.max(0, PORTAL_SPLASH_MIN_MS - (performance.now() - portalSplashStartedAt));
+    if (splashRemaining > 0) await new Promise(resolve => setTimeout(resolve, splashRemaining));
     document.body.classList.remove("portal-booting");
     document.getElementById("portalLoadingScreen")?.remove();
     return { client, session, user, profile };
