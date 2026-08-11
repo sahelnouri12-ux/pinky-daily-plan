@@ -1,7 +1,7 @@
 importScripts("./assets/js/app-version.js");
 
-const APP_VERSION = self.PINKY_APP_VERSION || "2.4.6";
-const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal`;
+const APP_VERSION = self.PINKY_APP_VERSION || "2.1.0";
+const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal-theme253-r5`;
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
