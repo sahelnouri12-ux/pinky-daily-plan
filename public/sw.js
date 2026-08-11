@@ -1,4 +1,4 @@
-const CACHE = "pinky-daily-plan-v1.4.0";
+const CACHE = "pinky-daily-plan-v2.1.0-theme253-r5";
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
 const SHELL = [
   "/", "/index.html", "/app.html", "/reset.html", "/privacy.html", "/admin.html",
