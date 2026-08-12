@@ -671,3 +671,539 @@ h1 {
     text-align: center;
   }
 }
+
+
+/* FINAL RESPONSIVE + TAHOMA HARDENING */
+
+/* =========================================================
+   Responsive + Persian typography hardening
+   Target: iPhone / iPad / Android / macOS / Windows
+   ========================================================= */
+
+/* Persian UI uses Tahoma first. English/LTR keeps its own stack. */
+html[dir="rtl"] body,
+html[dir="rtl"] body *,
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] select,
+html[dir="rtl"] option {
+  font-family: Tahoma, Arial, sans-serif !important;
+}
+
+html, body {
+  max-width: 100%;
+  min-width: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, [role="button"], input, select, textarea {
+  min-width: 0;
+}
+
+button, [role="button"] {
+  touch-action: manipulation;
+}
+
+input, select, textarea {
+  max-width: 100%;
+}
+
+:is(.panel, .hero-main, .hero-progress, .topbar, .card, .modal-shell, dialog,
+    .portal-auth-card, .portal-feature, .portal-stat-card, .portal-table-card) {
+  min-width: 0;
+}
+
+/* Keep long Persian/Latin content from creating horizontal scroll. */
+:is(h1,h2,h3,h4,h5,h6,p,span,strong,small,label,a,button,td,th,.panel-title,
+    .task-title,.task-meta,.portal-user-email,.portal-account-summary) {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Tablet / small laptop */
+@media (max-width: 1100px) {
+  .app-shell {
+    width: min(100% - 28px, 1240px);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .hero-progress {
+    width: 100%;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .today-independent-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .today-right-column,
+  .today-layout-column {
+    min-width: 0;
+  }
+}
+
+/* iPad portrait / large Android tablets */
+@media (max-width: 820px) {
+  .app-shell {
+    width: min(100% - 22px, 1240px);
+    padding-top: 10px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    top: max(6px, env(safe-area-inset-top));
+    padding: 10px 11px;
+    border-radius: 18px;
+  }
+
+  .topbar > * {
+    min-width: 0;
+  }
+
+  .hero-main {
+    min-height: 0 !important;
+    padding: 22px !important;
+  }
+
+  .panel {
+    padding: 18px !important;
+    border-radius: 22px;
+  }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .field.full {
+    grid-column: auto !important;
+  }
+
+  .task-toolbar {
+    align-items: stretch !important;
+  }
+
+  .task-toolbar > * {
+    min-width: 0;
+  }
+
+  .filters {
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 3px;
+    scrollbar-width: thin;
+  }
+
+  .filters > * {
+    flex: 0 0 auto;
+  }
+
+  dialog {
+    max-height: calc(100dvh - 24px);
+  }
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  .app-shell {
+    width: calc(100% - 16px);
+    padding: 8px 0 calc(82px + env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    position: sticky;
+    top: max(5px, env(safe-area-inset-top));
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .brand {
+    gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 13px !important;
+  }
+
+  .brand-text,
+  .brand small {
+    min-width: 0;
+  }
+
+  .topbar-actions,
+  .header-actions,
+  .portal-header-actions {
+    min-width: 0;
+    max-width: 55%;
+    gap: 5px;
+  }
+
+  .topbar-actions > *,
+  .header-actions > * {
+    min-width: 40px;
+  }
+
+  .hero {
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .hero-main {
+    padding: 18px !important;
+    border-radius: 22px !important;
+  }
+
+  .hero-main h1 {
+    font-size: clamp(1.35rem, 7vw, 2rem) !important;
+    line-height: 1.45 !important;
+  }
+
+  .hero-main::after {
+    width: 120px !important;
+    height: 120px !important;
+    font-size: 4rem !important;
+  }
+
+  .hero-actions,
+  .quick-actions,
+  .panel-actions,
+  .modal-actions,
+  .dialog-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+  }
+
+  .hero-actions > *,
+  .quick-actions > *,
+  .panel-actions > *,
+  .modal-actions > *,
+  .dialog-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-grid,
+  .stack {
+    gap: 12px !important;
+  }
+
+  .panel {
+    padding: 15px !important;
+    border-radius: 19px !important;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 13px;
+  }
+
+  .panel-title h3 {
+    font-size: 1rem;
+  }
+
+  .panel-title p {
+    font-size: .72rem;
+  }
+
+  .task-toolbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 9px !important;
+  }
+
+  .sort-select {
+    width: 100% !important;
+  }
+
+  .task-list {
+    min-width: 0;
+  }
+
+  .task-item,
+  .task-card {
+    min-width: 0 !important;
+  }
+
+  .fab {
+    left: max(12px, env(safe-area-inset-left)) !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 17px !important;
+  }
+
+  dialog {
+    width: calc(100% - 14px) !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 14px) !important;
+    margin: auto;
+    border-radius: 20px !important;
+  }
+
+  .modal-shell {
+    padding: 16px !important;
+  }
+
+  .modal-header {
+    gap: 8px;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .check-row {
+    align-items: flex-start;
+    min-height: 44px;
+  }
+}
+
+/* Small phones: iPhone SE / compact Android */
+@media (max-width: 390px) {
+  .app-shell {
+    width: calc(100% - 12px);
+  }
+
+  .topbar {
+    padding: 7px;
+  }
+
+  .brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .brand strong {
+    font-size: .86rem !important;
+  }
+
+  .brand small {
+    display: none !important;
+  }
+
+  .topbar-actions > *,
+  .header-actions > * {
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .hero-main {
+    padding: 15px !important;
+  }
+
+  .panel {
+    padding: 13px !important;
+  }
+
+  .filters {
+    margin-inline: -3px;
+    padding-inline: 3px;
+  }
+
+  .filter-btn {
+    min-height: 38px;
+  }
+
+  .portal-auth-shell,
+  .portal-admin-shell {
+    width: calc(100% - 12px);
+  }
+}
+
+/* Very small devices */
+@media (max-width: 330px) {
+  .app-shell {
+    width: calc(100% - 8px);
+  }
+
+  .topbar {
+    border-radius: 13px;
+  }
+
+  .topbar-actions,
+  .header-actions {
+    max-width: 48%;
+  }
+
+  .hero-main,
+  .panel {
+    padding-inline: 11px !important;
+  }
+
+  .portal-header-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Landscape phones: don't waste the short viewport */
+@media (orientation: landscape) and (max-height: 560px) {
+  .app-shell {
+    padding-top: 6px;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .hero-main {
+    min-height: 0 !important;
+  }
+
+  .hero-main::after {
+    display: none !important;
+  }
+
+  dialog {
+    max-height: calc(100dvh - 10px) !important;
+  }
+}
+
+/* Touch devices: comfortable controls without enlarging desktop UI. */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select {
+    min-height: 44px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important; /* prevents iOS Safari auto-zoom */
+  }
+}
+
+/* =========================================================
+   Portal/auth pages
+   ========================================================= */
+@media (max-width: 820px) {
+  .portal-auth-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .portal-auth-card {
+    width: min(590px, 100%) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .portal-auth-shell {
+    width: calc(100% - 16px);
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+
+  .portal-site-header {
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+
+  .portal-brand-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .portal-brand strong {
+    font-size: 1rem;
+  }
+
+  .portal-header-actions {
+    max-width: 48%;
+  }
+
+  .portal-header-actions > * {
+    min-width: 42px;
+  }
+
+  .portal-auth-card {
+    padding: 16px !important;
+    border-radius: 21px !important;
+  }
+
+  .portal-feature-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .portal-session-bar {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .portal-account-group {
+    flex-wrap: wrap;
+  }
+
+  .portal-user-email {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .portal-admin-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .portal-admin-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .portal-admin-header .portal-header-actions {
+    width: 100%;
+    max-width: none;
+  }
+
+  .portal-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Embedded Tahoma for Persian/RTL pages */
+@font-face{font-family:"TahomaWeb";src:url("/fonts/tahoma-regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"TahomaWeb";src:url("/fonts/tahoma-bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+html[dir="rtl"],html[lang="fa"],html[lang^="fa"],html[dir="rtl"] body,html[lang="fa"] body,html[lang^="fa"] body{font-family:"TahomaWeb",Tahoma,Arial,sans-serif!important}
+html[dir="rtl"] *,html[lang="fa"] *,html[lang^="fa"] *{font-family:"TahomaWeb",Tahoma,Arial,sans-serif!important}
