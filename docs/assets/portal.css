@@ -706,7 +706,7 @@ input, select, textarea {
 
 
 /* Embedded Tahoma for Persian/RTL pages */
-@font-face{font-family:"TahomaWeb";src:url("/fonts/tahoma-regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"TahomaWeb";src:url("/fonts/tahoma-bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"TahomaWeb";src:url("../fonts/tahoma-regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"TahomaWeb";src:url("../fonts/tahoma-bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
 html[dir="rtl"],html[lang="fa"],html[lang^="fa"],html[dir="rtl"] body,html[lang="fa"] body,html[lang^="fa"] body{font-family:"TahomaWeb",Tahoma,Arial,sans-serif!important}
 html[dir="rtl"] *,html[lang="fa"] *,html[lang^="fa"] *{font-family:"TahomaWeb",Tahoma,Arial,sans-serif!important}
