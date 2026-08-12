@@ -672,7 +672,21 @@ h1 {
   }
 }
 
+@font-face {
+  font-family: "TahomaWeb";
+  src: url("../../fonts/tahoma-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: "TahomaWeb";
+  src: url("../../fonts/tahoma-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 /* FINAL RESPONSIVE + TAHOMA HARDENING */
 
 /* =========================================================
