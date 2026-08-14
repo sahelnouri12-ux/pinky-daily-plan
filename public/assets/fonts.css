@@ -1,0 +1,71 @@
+/* Local SF Arabic webfont family */
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-thin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-semibold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SFArabicWeb";
+  src: url("../fonts/sf-arabic-heavy.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* Apply the uploaded font across Persian and English UI. */
+html[dir] body,
+html[dir] body *,
+html[lang] body,
+html[lang] body *,
+html[dir] body.portal-page,
+html[dir] body.portal-page *,
+html button,
+html input,
+html textarea,
+html select,
+html option {
+  font-family: "SFArabicWeb", Tahoma, Arial, system-ui, sans-serif !important;
+}
