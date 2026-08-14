@@ -1,7 +1,7 @@
 importScripts("./assets/js/app-version.js");
 
 const APP_VERSION = self.PINKY_APP_VERSION || "2.1.0";
-const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal-theme253-r5`;
+const CACHE = `pinky-daily-plan-v${APP_VERSION}-auth-portal-theme253-r5-sf-arabic-1`;
 const SCOPE = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ""), SCOPE).href;
 const SUPABASE_CDN = "https://unpkg.com/@supabase/supabase-js@2.57.4";
@@ -28,7 +28,15 @@ const SHELL = [
   "apple-touch-icon.png",
   "icon-192.png",
   "icon-512.png",
+  "fonts/sf-arabic-thin.woff2",
+  "fonts/sf-arabic-light.woff2",
+  "fonts/sf-arabic-regular.woff2",
+  "fonts/sf-arabic-medium.woff2",
+  "fonts/sf-arabic-semibold.woff2",
+  "fonts/sf-arabic-bold.woff2",
+  "fonts/sf-arabic-heavy.woff2",
   "assets/portal.css",
+  "assets/fonts.css",
   "assets/auth.js",
   "assets/cloud-bridge.js",
   "assets/reset.js",
