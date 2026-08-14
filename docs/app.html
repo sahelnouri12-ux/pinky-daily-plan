@@ -2877,12 +2877,6 @@
       display: block;
       max-width: 100%;
     }
-    body.calm-today-redesign[data-active-product-view="today"] .today-timeline-featured {
-      width: 100%;
-      max-width: 100%;
-      margin: 0 0 22px;
-      box-sizing: border-box;
-    }
     body.calm-today-redesign[data-active-product-view="today"] .today-primary-stack {
       display: grid;
       gap: 22px;
@@ -3051,7 +3045,6 @@
     @media (max-width: 760px) {
       body.calm-today-redesign .app-shell { width: min(100% - 16px, 1240px); padding-top: 8px; }
       body.calm-today-redesign[data-active-product-view="today"] .hero { gap: 12px; margin-bottom: 16px; }
-      body.calm-today-redesign[data-active-product-view="today"] .today-timeline-featured { margin-bottom: 16px; }
       body.calm-today-redesign[data-active-product-view="today"] .hero-main,
       body.calm-today-redesign[data-active-product-view="today"] .hero-progress,
       body.calm-today-redesign[data-active-product-view="today"] .panel { border-radius: 20px; }
@@ -5142,16 +5135,6 @@ input, select, textarea {
 }
 
 </style>
-  <style>
-    /* Pinky Life navigation — v2.5.0 */
-    .primary-navigation { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .primary-navigation a.product-nav-button { text-decoration: none; }
-    @media (max-width: 560px) {
-      .primary-navigation { gap: 4px; padding: 4px; }
-      .product-nav-button { gap: 4px; padding-inline: 5px !important; }
-      .product-nav-label { font-size: .69rem !important; }
-    }
-</style>
   <link rel="stylesheet" href="./assets/fonts.css?v=sf-arabic-1" />
 </head>
 <body class="portal-booting compact-ui-v25">
@@ -5218,10 +5201,6 @@ input, select, textarea {
         <span class="product-nav-icon" aria-hidden="true">📊</span>
         <span class="product-nav-label">مرور</span>
       </button>
-      <a class="product-nav-button" href="./life.html" aria-label="زندگی">
-        <span class="product-nav-icon" aria-hidden="true">🌿</span>
-        <span class="product-nav-label">زندگی</span>
-      </a>
     </nav>
 
     <nav class="section-shortcuts" id="sectionShortcuts" aria-label="دسترسی سریع به بخش‌های همین صفحه">
@@ -5327,17 +5306,6 @@ input, select, textarea {
       </section>
 
 
-      <section class="panel today-timeline-featured" id="timelinePanel" aria-labelledby="timelineTitle">
-        <div class="panel-header">
-          <div class="panel-title">
-            <h3 id="timelineTitle">برنامه زمانی امروز</h3>
-            <p>حالا که می‌دانی چه چیزهایی برایت مهم‌اند، بیا برایشان گوشه‌ای از امروزت را کنار بگذاریم.</p>
-          </div>
-          <span class="counter" id="timelineCounter">۰ برنامه</span>
-        </div>
-        <div class="timeline" id="timelineList"></div>
-      </section>
-
       <section class="dashboard-grid">
         <div class="stack" data-product-view="today">
           <section class="panel" id="tasksPanel" aria-labelledby="tasksTitle">
@@ -5397,7 +5365,16 @@ input, select, textarea {
             <p class="manual-sort-note" id="manualSortNote" hidden>برای تغییر ترتیب، دستگیره ⠿ را با ماوس یا لمس بکش؛ با صفحه‌کلید نیز روی دستگیره از کلیدهای بالا و پایین استفاده کن.</p>
           </section>
 
-
+          <section class="panel" id="timelinePanel" aria-labelledby="timelineTitle">
+            <div class="panel-header">
+              <div class="panel-title">
+                <h3 id="timelineTitle">برنامه زمانی امروز</h3>
+                <p>حالا که می‌دانی چه چیزهایی برایت مهم‌اند، بیا برایشان گوشه‌ای از امروزت را کنار بگذاریم.</p>
+              </div>
+              <span class="counter" id="timelineCounter">۰ برنامه</span>
+            </div>
+            <div class="timeline" id="timelineList"></div>
+          </section>
         </div>
 
         <aside class="stack" data-product-view="today">
@@ -6027,7 +6004,7 @@ input, select, textarea {
 
       const STORAGE_KEY = "pinky-day-planner-v1";
       const BACKUP_KEY = "pinky-day-planner-v1-before-import";
-      const SCHEMA_VERSION = 18;
+      const SCHEMA_VERSION = 17;
       const POINTS = { small: 1, medium: 2, important: 3, large: 4, major: 5 };
       const PRIORITY_ORDER = { high: 3, normal: 2, low: 1 };
       const ROUTINE_TYPES = {
@@ -6215,11 +6192,6 @@ input, select, textarea {
         achievements: {},
         weatherHistory: {},
         performanceHistory: {},
-        journalEntries: [],
-        meditationSessions: [],
-        financeEntries: [],
-        trackers: [],
-        trackerLogsByDate: {},
         rollover: { lastPromptDate: null },
         weather: { status: "idle", error: "", cache: null, lastAttemptAt: null, locationStatus: "idle", locationError: "" },
         googleCalendar: { enabled: false, eventsByDate: {}, lastSync: null, error: "" },
@@ -6754,24 +6726,6 @@ input, select, textarea {
         next.energyLevels = raw.energyLevels && typeof raw.energyLevels === "object" ? { ...raw.energyLevels } : {};
         next.reflections = raw.reflections && typeof raw.reflections === "object" ? { ...raw.reflections } : {};
         next.achievements = raw.achievements && typeof raw.achievements === "object" ? { ...raw.achievements } : {};
-        next.journalEntries = (Array.isArray(raw.journalEntries) ? raw.journalEntries : []).filter(item => item && typeof item === "object").map(item => ({
-          id: item.id || createId(), date: /^\d{4}-\d{2}-\d{2}$/.test(String(item.date || "")) ? String(item.date) : dateKeyFromAny(item.createdAt || nowIso()),
-          mood: ["calm","happy","tired","sad","focused","mixed"].includes(item.mood) ? item.mood : "mixed",
-          text: String(item.text || "").slice(0,5000), createdAt: parseDateLike(item.createdAt, nowIso()), updatedAt: parseDateLike(item.updatedAt, item.createdAt || nowIso())
-        })).filter(item => item.text.trim());
-        next.meditationSessions = (Array.isArray(raw.meditationSessions) ? raw.meditationSessions : []).filter(item => item && typeof item === "object").map(item => ({
-          id: item.id || createId(), minutes: clamp(Math.round(Number(item.minutes) || 1), 1, 180), kind: String(item.kind || "breathing").slice(0,40), completedAt: parseDateLike(item.completedAt, nowIso())
-        }));
-        next.financeEntries = (Array.isArray(raw.financeEntries) ? raw.financeEntries : []).filter(item => item && typeof item === "object").map(item => ({
-          id: item.id || createId(), type: item.type === "income" ? "income" : "expense", amount: Math.max(0, Number(item.amount) || 0),
-          category: String(item.category || "سایر").slice(0,60), note: String(item.note || "").slice(0,180),
-          date: /^\d{4}-\d{2}-\d{2}$/.test(String(item.date || "")) ? String(item.date) : dateKeyFromAny(item.createdAt || nowIso()), createdAt: parseDateLike(item.createdAt, nowIso())
-        })).filter(item => item.amount > 0);
-        next.trackers = (Array.isArray(raw.trackers) ? raw.trackers : []).filter(item => item && typeof item === "object").map(item => ({
-          id: item.id || createId(), name: String(item.name || "عادت").slice(0,80), icon: String(item.icon || "🌱").slice(0,8),
-          target: clamp(Math.round(Number(item.target) || 1), 1, 99), createdAt: parseDateLike(item.createdAt, nowIso())
-        }));
-        next.trackerLogsByDate = raw.trackerLogsByDate && typeof raw.trackerLogsByDate === "object" ? { ...raw.trackerLogsByDate } : {};
         next.settings = { ...next.settings, ...(raw.settings || {}) };
         next.settings.taskDensity = raw.settings?.taskDensity === "compact" ? "compact" : "comfortable";
         next.settings.routineSort = ["time","type","next"].includes(raw.settings?.routineSort) ? raw.settings.routineSort : "time";
@@ -9966,6 +9920,7 @@ input, select, textarea {
         const heroProgress = hero.querySelector(':scope > .hero-progress');
         const tasks = document.getElementById('tasksPanel');
         const routine = document.getElementById('routinePanel');
+        const timeline = document.getElementById('timelinePanel');
         const more = document.getElementById('todayMoreDetails');
         const dashboard = document.querySelector('.dashboard-grid');
         if (!heroMain || !heroProgress || !tasks || !routine) return;
@@ -9978,6 +9933,7 @@ input, select, textarea {
         hero.append(left, right);
         left.append(heroMain, tasks);
         right.append(heroProgress, routine);
+        if (timeline) right.appendChild(timeline);
         if (more) right.appendChild(more);
         hero.classList.add('today-independent-layout');
 
